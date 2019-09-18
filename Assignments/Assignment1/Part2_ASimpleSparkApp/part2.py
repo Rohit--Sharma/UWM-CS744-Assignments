@@ -10,4 +10,4 @@ lines = sc.textFile("export.csv")
 lineLengths = lines.map(lambda s: len(s))
 totalLength = lineLengths.reduce(lambda a, b: a + b)
 
-print(totalLength)
+print("Total size of file:", totalLength)
