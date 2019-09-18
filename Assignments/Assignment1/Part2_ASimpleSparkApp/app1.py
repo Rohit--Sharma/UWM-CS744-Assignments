@@ -8,6 +8,6 @@ sc = SparkContext(conf=conf)
 
 dataframe = sc.textFile("export.csv")
 
-sorted_dataframe = dataframe.sortByKey('cca2')
+sorted_dataframe = dataframe.sortBy(lambda x: (x.split(",")[2], x.split(",")[-1]))
 
-sorted_dataframe.collect()
+print(sorted_dataframe.collect())
