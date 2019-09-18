@@ -6,6 +6,6 @@ conf = SparkConf().setAppName("Part2_SortingWithSpark").setMaster("local")
 sc = SparkContext(conf=conf)
 
 
-datafram = sc.textFile("export.csv")
+dataframe = sc.textFile("export.csv")
 
 dataframe.sortByKey('cca2')
