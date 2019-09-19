@@ -11,6 +11,6 @@ ranks = lines.groupByKey().mapValues(lambda x : 1)
 ITERATIONS = 10
 for i in to range(ITERATIONS):
 	#Build an RDD of (targetURL, float) pairs // with the contributions sent by each page 
-	contribs = links.join(ranks).flatMap(lambda url_rank : links.map(lambda url_rank : (url_rank[1][0], url_rank[1][1]/len(url_rank[1]))))
+	contribs = lines.join(ranks).flatMap(lambda url_rank : links.map(lambda url_rank : (url_rank[1][0], url_rank[1][1]/len(url_rank[1]))))
 	#Sum contributions by URL and get new ranks 
 	ranks = contribs.reduceByKey(lambda x, y : x+y).mapValues(lambda r :  0.15 + 0.85 * r)
