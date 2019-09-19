@@ -13,7 +13,7 @@ links = documents.filter(lambda x: x[0] != '#').map(lambda x: (x.split('\t')[0],
 
 ranks = links.groupByKey().mapValues(lambda x: 1)
 
-links = links.groupByKey().mapValues(len)
+links = links.groupByKey().mapValues(list)
 
 def computeContribs(urls, rank):
     """Calculates URL contributions to the rank of other URLs."""
@@ -28,4 +28,7 @@ for i in range(n_iter):
     # Sum contributions by URL and get new ranks
     ranks = contribs.reduceByKey(add).mapValues(lambda sum: 0.15 + 0.85 * sum)
 
-ranks.collect()
+ranks = ranks.sortBy(lambda url_rank: url_rank[1], ascending=False)
+
+ranks_ = ranks.collect()
+print(ranks_[0:100])
