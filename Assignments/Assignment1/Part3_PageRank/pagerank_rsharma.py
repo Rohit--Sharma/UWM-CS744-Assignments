@@ -15,10 +15,16 @@ ranks = links.groupByKey().mapValues(lambda x: 1)
 
 links = links.groupByKey().mapValues(len)
 
+def computeContribs(urls, rank):
+    """Calculates URL contributions to the rank of other URLs."""
+    num_urls = len(urls)
+    for url in urls:
+        yield (url, rank / num_urls)
+
 for i in range(n_iter):
     # Build an RDD of (targetURL, float) pairs
     # with the contributions sent by each page
-    contribs = links.join(ranks).flatMap(lambda x: x[1][0].map(lambda dest: (dest, x[1][1] / len(x[1][0]))))
+    contribs = links.join(ranks).flatMap(lambda url_urls_rank: computeContribs(url_urls_rank[1][0], url_urls_rank[1][1]))
     # Sum contributions by URL and get new ranks
     ranks = contribs.reduceByKey(add).mapValues(lambda sum: 0.15 + 0.85 * sum)
 
