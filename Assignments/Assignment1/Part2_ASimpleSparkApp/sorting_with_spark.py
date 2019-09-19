@@ -11,6 +11,7 @@ conf = SparkConf().setAppName("Part2_SortingWithSpark").setMaster("local")
 sc = SparkContext(conf=conf)
 
 # Load the input file as an RDD
+# TODO: Load the data into HDFS and load the file from HDFS using "hdfs://..."
 lines = sc.textFile(input_filename)
 
 # Sort based on country code (3rd column) first and then timestamp (last column) with sortBy transformation
