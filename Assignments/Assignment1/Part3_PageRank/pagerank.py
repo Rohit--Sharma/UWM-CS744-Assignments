@@ -28,7 +28,7 @@ for i in range(n_iter):
     # Sum contributions by URL and get new ranks
     ranks = contribs.reduceByKey(add).mapValues(lambda sum: 0.15 + 0.85 * sum)
 
-ranks = ranks.sortBy(lambda url_rank: url_rank[1], ascending=False)
+# ranks = ranks.sortBy(lambda url_rank: url_rank[1], ascending=False)
 
 ranks_ = ranks.collect()
-print(ranks_[0:100])
+# print(ranks_[0:100])
