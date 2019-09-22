@@ -4,11 +4,17 @@ from pyspark import SparkContext, SparkConf
 conf = SparkConf().setAppName("Part3_PageRank").setMaster("local")
 sc = SparkContext(conf=conf)
 
-documents = sc.textFile("web-BerkStan.txt")
+documents = sc.textFile("/proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/")
+
+def filter_func(x):
+	if ":" in x and not x.startswith("Category"):
+		return False
+	return True	
+
 n_iter = 10
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.filter(lambda x: x[0] != '#').map(lambda x: (x.split('\t')[0], x.split('\t')[1])).persist()
+links = documents.map(lambda x: (x.split('\t')[0].lower(), x.split('\t')[1].lower())).filter(lambda x: filter_func(x))
 
 ranks = links.groupByKey().mapValues(lambda x: 1)
 
