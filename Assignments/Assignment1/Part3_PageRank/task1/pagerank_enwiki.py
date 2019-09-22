@@ -14,7 +14,7 @@ def filter_func(x):
 n_iter = 10
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.map(lambda x: (x.split('\t')[0].lower(), x.split('\t')[1].lower())).filter(lambda x: filter_func(x))
+links = documents.map(lambda x: (x.split('\t')[0].lower(), x.split('\t')[1].lower())).filter(lambda x: filter_func(x[1]))
 
 ranks = links.groupByKey().mapValues(lambda x: 1)
 
