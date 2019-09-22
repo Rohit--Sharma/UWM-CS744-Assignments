@@ -26,12 +26,12 @@ def computeContribs(urls, rank):
 	for url in urls:
 		yield (url, rank / num_urls)
 
-	for i in range(n_iter):
-		# Build an RDD of (targetURL, float) pairs
-		# with the contributions sent by each page
-		contribs = links.join(ranks).flatMap(lambda url_urls_rank: computeContribs(url_urls_rank[1][0], url_urls_rank[1][1]))
-		# Sum contributions by URL and get new ranks
-		ranks = contribs.reduceByKey(add).mapValues(lambda sum: 0.15 + 0.85 * sum)
+for i in range(n_iter):
+	# Build an RDD of (targetURL, float) pairs
+	# with the contributions sent by each page
+	contribs = links.join(ranks).flatMap(lambda url_urls_rank: computeContribs(url_urls_rank[1][0], url_urls_rank[1][1]))
+	# Sum contributions by URL and get new ranks
+	ranks = contribs.reduceByKey(add).mapValues(lambda sum: 0.15 + 0.85 * sum)
 
 # ranks = ranks.sortBy(lambda url_rank: url_rank[2], ascending=False)
 
