@@ -1,5 +1,5 @@
 import sys
-from pyspark import SparkContext, SparkConf 
+from pyspark import SparkContext, SparkConf
 
 
 # Input and output file name from the command line
@@ -17,8 +17,11 @@ header = lines.first()
 filtered_lines = lines.filter(lambda line: line != header)
 
 # Sort based on country code (3rd column) first and then timestamp (last column) with sortBy transformation
-# TODO: Ignore the header in sorting and append the header as first line in the output file?
 sorted_lines = filtered_lines.sortBy(lambda x: (x.split(",")[2], x.split(",")[-1]))
 
+# add the header as an rdd and join it to the sorted rdd
+full = sc.parallelize([header, ""])
+full = full.filter(lambda x: x != "").union(sorted_lines)
+
 # Write the output to disk with saveAsTextFile action
-sorted_lines.saveAsTextFile(output_filename)
+full.coalesce(1, True).saveAsTextFile(output_filename)
