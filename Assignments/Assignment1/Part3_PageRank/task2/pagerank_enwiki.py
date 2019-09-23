@@ -7,14 +7,14 @@ sc = SparkContext(conf=conf)
 documents = sc.textFile("/proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/*xml*")
 
 def filter_func(x):
-	if ":" in x[1] and not x[1].startswith("category:"):
+	if ":" in x and not x.startswith("category:"):
 		return False
 	return True	
 
 n_iter = 5
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.map(lambda x: (x.split('\t')[0].lower(), x.split('\t')[1].lower())).filter(lambda x: filter_func(x))
+links = documents.map(lambda x: (x.split('\t')[0].lower(), x.split('\t')[1].lower())).filter(lambda x: filter_func(x[0]) and filter_func(x[1]))
 
 links = links.groupByKey().mapValues(list)
 
