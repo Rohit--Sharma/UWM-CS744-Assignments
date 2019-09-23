@@ -35,5 +35,5 @@ for i in range(n_iter):
 
 # ranks = ranks.sortBy(lambda url_rank: url_rank[2], ascending=False)
 
-ranks_ = ranks.saveAsTextFile("/mnt/data/result.txt")
+ranks_ = ranks.count() #saveAsTextFile("/mnt/data/result.txt")
 #print(ranks_[1:100])

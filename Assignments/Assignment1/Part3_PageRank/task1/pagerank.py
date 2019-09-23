@@ -8,11 +8,11 @@ documents = sc.textFile("web-BerkStan.txt")
 n_iter = 10
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.filter(lambda x: x[0] != '#').map(lambda x: (x.split('\t')[0], x.split('\t')[1])).persist()
+links = documents.filter(lambda x: x[0] != '#').map(lambda x: (x.split('\t')[0], x.split('\t')[1]))
 
-ranks = links.groupByKey().mapValues(lambda x: 1)
+links = links.groupByKey().mapValues(list).persist()
 
-links = links.groupByKey().mapValues(list)
+ranks = links.mapValues(lambda x: 1)
 
 def computeContribs(urls, rank):
     """Calculates URL contributions to the rank of other URLs."""
