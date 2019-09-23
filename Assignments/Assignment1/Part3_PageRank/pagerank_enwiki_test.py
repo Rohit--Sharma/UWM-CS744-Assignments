@@ -4,21 +4,21 @@ from pyspark import SparkContext, SparkConf
 conf = SparkConf().setAppName("Part3_PageRank").setMaster("local")
 sc = SparkContext(conf=conf)
 
-documents = sc.textFile("/proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/*xml*")
+documents = sc.textFile("/proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/*xml*").persist()
 
 def filter_func(x):
 	if ":" in x[1] and not x[1].startswith("category:"):
 		return False
 	return True	
 
-n_iter = 10
+n_iter = 5
 
 # Filter the comments beginning with # and create an RDD 
 links = documents.map(lambda x: (x.split('\t')[0].lower(), x.split('\t')[1].lower())).filter(lambda x: filter_func(x))
 
-ranks = links.groupByKey().mapValues(lambda x: 1)
+links = links.groupByKey().mapValues(list).persist()
 
-links = links.groupByKey().mapValues(list)
+ranks = links.mapValues(lambda x: 1)
 
 def computeContribs(urls, rank):
 	"""Calculates URL contributions to the rank of other URLs."""
@@ -35,5 +35,5 @@ for i in range(n_iter):
 
 # ranks = ranks.sortBy(lambda url_rank: url_rank[2], ascending=False)
 
-ranks_ = ranks.save("/mnt/data/result.txt")
+ranks_ = ranks.saveAsTextFile("/mnt/data/result.txt")
 #print(ranks_[1:100])
