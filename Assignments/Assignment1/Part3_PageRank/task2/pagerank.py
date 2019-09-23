@@ -17,7 +17,7 @@ links = documents.filter(lambda x: x[0] != '#').map(lambda x: (x.split('\t')[0],
 num_partitions = links.getNumPartitions()
 print("******************************************** Number of partitions : %d" % num_partitions)
 
-links = links.groupByKey().mapValues(list).persist().partitionBy(num_partitions, url_partitioner)
+links = links.groupByKey().mapValues(list).partitionBy(num_partitions, url_partitioner)
 
 ranks = links.mapValues(lambda x: 1).partitionBy(num_partitions, url_partitioner)
 
