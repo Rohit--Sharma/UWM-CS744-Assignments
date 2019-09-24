@@ -18,9 +18,9 @@ def split_and_case_func(x):
 n_iter = 5
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.map(lambda x: split_and_case_func(x)).filter(lambda x: filter_func(x[0]) and filter_func(x[1])).distinct().groupByKey()
+links = documents.filter(lambda x: filter_func(x[1])).map(lambda x: split_and_case_func(x)).groupByKey().partitionBy(num_partitions)
 
-ranks = links.mapValues(lambda x: 1)
+ranks = links.mapValues(lambda x: 1).partitionBy(num_partitions)
 
 def computeContribs(urls, rank):
 	"""Calculates URL contributions to the rank of other URLs."""
@@ -33,7 +33,7 @@ for i in range(n_iter):
 	# with the contributions sent by each page
 	contribs = links.join(ranks).flatMap(lambda url_urls_rank: computeContribs(url_urls_rank[1][0], url_urls_rank[1][1]))
 	# Sum contributions by URL and get new ranks
-	ranks = contribs.reduceByKey(add).mapValues(lambda sum: 0.15 + 0.85 * sum)
+	ranks = contribs.reduceByKey(add).mapValues(lambda sum: 0.15 + 0.85 * sum).partitionBy(num_partitions)
 
 # ranks = ranks.sortBy(lambda url_rank: url_rank[2], ascending=False)
 
