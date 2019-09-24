@@ -8,9 +8,7 @@ documents = sc.textFile("web-BerkStan.txt")
 n_iter = 10
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.filter(lambda x: x[0] != '#').map(lambda x: (x.split('\t')[0], x.split('\t')[1]))
-
-links = links.groupByKey().mapValues(list)
+links = documents.filter(lambda x: x[0] != '#').map(lambda x: (x.split('\t')[0], x.split('\t')[1])).groupByKey()
 
 ranks = links.mapValues(lambda x: 1)
 
