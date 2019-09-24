@@ -11,12 +11,14 @@ def filter_func(x):
 		return False
 	return True	
 
+def split_and_case_func(x):
+        temp = x.lower().split('\t')
+        return (temp[0], temp[1])
+
 n_iter = 5
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.map(lambda x: (x.split('\t')[0].lower(), x.split('\t')[1].lower())).filter(lambda x: filter_func(x[0]) and filter_func(x[1]))
-
-links = links.groupByKey().mapValues(list)
+links = documents.map(lambda x: split_and_case_func(x)).filter(lambda x: filter_func(x[0]) and filter_func(x[1])).distinct().groupByKey()
 
 ranks = links.mapValues(lambda x: 1)
 
