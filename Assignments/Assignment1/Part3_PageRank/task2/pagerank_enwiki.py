@@ -1,27 +1,32 @@
+import sys
 from operator import add
-from pyspark import SparkContext, SparkConf 
+from pyspark import SparkContext, SparkConf
+
+
+n_iter = int(sys.argv[1])
+num_partitions = int(sys.argv[2])
+spark_master_hostname = sys.argv[3]
+input_path = sys.argv[4]
+output_path = sys.argv[5]
 
 conf = SparkConf().setAppName("Part3_PageRank")\
 	.set('spark.executor.memory', '29g')\
 	.set('spark.executor.cores', '5')\
 	.set('spark.driver.memory', '29g')\
 	.set('spark.task.cpus', '1')\
-	.setMaster('spark://' + 'c220g1-031124vm-1.wisc.cloudlab.us' + ':7077')
+	.setMaster('spark://' + spark_master_hostname + ':7077')
 sc = SparkContext(conf=conf)
 
-documents = sc.textFile("/proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/*xml*")
+documents = sc.textFile(input_path)
 
 def filter_func(x):
 	if ":" in x and not x.startswith("category:"):
 		return False
-	return True	
+	return True
 
 def split_and_case_func(x):
-        temp = x.lower().split('\t')
-        return (temp[0], temp[1])
-
-n_iter = 5
-num_partitions = 96
+	temp = x.lower().split('\t')
+	return (temp[0], temp[1])
 
 # Filter the comments beginning with # and create an RDD 
 links = documents.filter(lambda x: filter_func(x[1])).map(lambda x: split_and_case_func(x)).groupByKey().partitionBy(num_partitions)
@@ -43,5 +48,5 @@ for i in range(n_iter):
 
 # ranks = ranks.sortBy(lambda url_rank: url_rank[2], ascending=False)
 
-ranks_ = ranks.count() #saveAsTextFile("/mnt/data/result.txt")
+ranks_ = ranks.saveAsTextFile(output_path)
 #print(ranks_[1:100])
