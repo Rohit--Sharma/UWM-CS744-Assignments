@@ -1,7 +1,12 @@
 from operator import add
 from pyspark import SparkContext, SparkConf 
 
-conf = SparkConf().setAppName("Part3_PageRank").setMaster("local")
+conf = SparkConf().setAppName("Part3_PageRank")\
+	.set('spark.executor.memory', '29g')\
+	.set('spark.executor.cores', '5')\
+	.set('spark.driver.memory', '29g')\
+	.set('spark.task.cpus', '1')\
+	.setMaster('spark://' + 'c220g1-031124vm-1.wisc.cloudlab.us' + ':7077')
 sc = SparkContext(conf=conf)
 
 documents = sc.textFile("/proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/*xml*")
