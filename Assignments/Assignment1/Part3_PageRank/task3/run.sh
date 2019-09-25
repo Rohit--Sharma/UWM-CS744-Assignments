@@ -1,7 +1,3 @@
-if [ $1 = "small" ]; then
-	spark-submit pagerank.py
-elif [ $1 = "large" ] ; then
-	spark-submit pagerank_enwiki.py
-else
-	echo "Invalid argument. Please enter either \"small\" or \"large\"."
-fi
+#!/bin/bash
+set -o noglob
+spark-submit pagerank.py $1 $2 $3 $4 $5 $6
