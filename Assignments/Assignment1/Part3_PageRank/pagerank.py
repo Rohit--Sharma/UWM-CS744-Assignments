@@ -1,19 +1,21 @@
 from operator import add
 from pyspark import SparkContext, SparkConf 
 
-conf = SparkConf().setAppName("Part3_PageRank").setMaster("local")
+conf = SparkConf().setAppName("Part3_PageRank")\
+	.set('spark.executor.memory', '29g')\
+	.set('spark.executor.cores', '5')\
+	.set('spark.driver.memory', '29g')\
+	.set('spark.task.cpus', '1')\
+	.setMaster('spark://' + 'c220g1-031124vm-1.wisc.cloudlab.us' + ':7077')
 sc = SparkContext(conf=conf)
 
-#documents = sc.textFile("/proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/")
 documents = sc.textFile("web-BerkStan.txt")
 n_iter = 10
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.filter(lambda x: x[0] != '#').map(lambda x: (x.split('\t')[0], x.split('\t')[1])).persist()
+links = documents.filter(lambda x: x[0] != '#').map(lambda x: (x.split('\t')[0], x.split('\t')[1])).groupByKey()
 
-ranks = links.groupByKey().mapValues(lambda x: 1)
-
-links = links.groupByKey().mapValues(list)
+ranks = links.mapValues(lambda x: 1)
 
 def computeContribs(urls, rank):
     """Calculates URL contributions to the rank of other URLs."""
