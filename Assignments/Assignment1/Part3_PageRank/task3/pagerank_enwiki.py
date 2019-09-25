@@ -29,7 +29,7 @@ def split_and_case_func(x):
 	return (temp[0], temp[1])
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.map(lambda x: split_and_case_func(x)).filter(lambda x: filter_func(x[0]) and filter_func(x[1])).distinct().groupByKey()
+links = documents.map(lambda x: split_and_case_func(x)).filter(lambda x: filter_func(x[0]) and filter_func(x[1])).distinct().groupByKey().cache()
 
 ranks = links.mapValues(lambda x: 1)
 
