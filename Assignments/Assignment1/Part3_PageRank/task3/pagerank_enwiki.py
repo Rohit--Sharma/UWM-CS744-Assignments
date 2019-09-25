@@ -41,15 +41,6 @@ sc = SparkContext(conf=conf)
 
 documents = sc.textFile(input_path)
 
-def filter_func(x):
-	if ":" in x and not x.startswith("category:"):
-		return False
-	return True
-
-def split_and_case_func(x):
-	temp = x.lower().split('\t')
-	return (temp[0], temp[1])
-
 # Filter the comments beginning with # and create an RDD 
 links = documents.filter(lambda x: filter_func(x[1])).map(lambda x: split_and_case_func(x)).groupByKey().partitionBy(num_partitions).cache()
 
