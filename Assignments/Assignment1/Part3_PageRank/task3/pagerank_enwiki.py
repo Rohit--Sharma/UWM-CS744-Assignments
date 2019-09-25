@@ -14,10 +14,10 @@ conf = SparkConf().setAppName("Part3_PageRank")\
 	.set('spark.executor.cores', '5')\
 	.set('spark.driver.memory', '29g')\
 	.set('spark.task.cpus', '1')\
-	.setMaster('spark://' + 'c220g1-031124vm-1.wisc.cloudlab.us' + ':7077')
+	.setMaster('spark://' + spark_master_hostname + ':7077')
 sc = SparkContext(conf=conf)
 
-documents = sc.textFile("/proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/*xml*")
+documents = sc.textFile(input_path)
 
 def filter_func(x):
 	if ":" in x and not x.startswith("category:"):
@@ -29,9 +29,9 @@ def split_and_case_func(x):
 	return (temp[0], temp[1])
 
 # Filter the comments beginning with # and create an RDD 
-links = documents.map(lambda x: split_and_case_func(x)).filter(lambda x: filter_func(x[0]) and filter_func(x[1])).distinct().groupByKey().cache()
+links = documents.filter(lambda x: filter_func(x[1])).map(lambda x: split_and_case_func(x)).groupByKey().partitionBy(num_partitions).cache()
 
-ranks = links.mapValues(lambda x: 1)
+ranks = links.mapValues(lambda x: 1).partitionBy(num_partitions)
 
 def computeContribs(urls, rank):
 	"""Calculates URL contributions to the rank of other URLs."""
@@ -44,7 +44,7 @@ for i in range(n_iter):
 	# with the contributions sent by each page
 	contribs = links.join(ranks).flatMap(lambda url_urls_rank: computeContribs(url_urls_rank[1][0], url_urls_rank[1][1]))
 	# Sum contributions by URL and get new ranks
-	ranks = contribs.reduceByKey(add).mapValues(lambda sum: 0.15 + 0.85 * sum)
+	ranks = contribs.reduceByKey(add).mapValues(lambda sum: 0.15 + 0.85 * sum).partitionBy(num_partitions)
 
 # ranks = ranks.sortBy(lambda url_rank: url_rank[2], ascending=False)
 

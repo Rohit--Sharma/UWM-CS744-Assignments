@@ -1,10 +1,10 @@
 import sys
 from operator import add
-from pyspark import SparkContext, SparkConf 
+from pyspark import SparkContext, SparkConf
 
 
 n_iter = int(sys.argv[1])
-num_partitions = int(sys.argv[2])		# Not used in this file
+num_partitions = int(sys.argv[2])
 spark_master_hostname = sys.argv[3]
 input_path = sys.argv[4]
 output_path = sys.argv[5]
@@ -22,14 +22,15 @@ documents = sc.textFile(input_path)
 def filter_func(x):
 	if ":" in x and not x.startswith("category:"):
 		return False
-	return True	
+	return True
 
 def split_and_case_func(x):
-        temp = x.lower().split('\t')
-        return (temp[0], temp[1])
+	temp = x.lower().split('\t')
+	return (temp[0], temp[1])
 
 # Filter the comments beginning with # and create an RDD 
 links = documents.filter(lambda x: filter_func(x[1])).map(lambda x: split_and_case_func(x)).groupByKey()
+
 ranks = links.mapValues(lambda x: 1)
 
 def computeContribs(urls, rank):
