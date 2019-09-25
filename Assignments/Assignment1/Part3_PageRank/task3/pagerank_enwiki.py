@@ -2,11 +2,12 @@ import sys
 from operator import add
 from pyspark import SparkContext, SparkConf
 
-n_iter = int(sys.argv[1])
-num_partitions = int(sys.argv[2])
-spark_master_hostname = sys.argv[3]
-input_path = sys.argv[4]
-output_path = sys.argv[5]
+file_type = sys.argv[1] 
+n_iter = int(sys.argv[2])
+num_partitions = int(sys.argv[3])
+spark_master_hostname = sys.argv[4]
+input_path = sys.argv[5]
+output_path = sys.argv[6]
 
 def filter_func(x, file_type):
 	if file_type == "small":
