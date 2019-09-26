@@ -20,4 +20,3 @@ def computeContribs(urls, rank):
 	num_urls = len(urls)
 	for url in urls:
 		yield (url, rank / num_urls)
-

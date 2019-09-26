@@ -2,6 +2,7 @@ import sys
 from operator import add
 from pyspark import SparkContext, SparkConf
 
+
 file_type = sys.argv[1] 
 n_iter = int(sys.argv[2])
 num_partitions = int(sys.argv[3])
@@ -24,6 +25,7 @@ def split_func(x, file_type):
 	else:
 		temp = x.lower().split('\t')
 		return (temp[0], temp[1])
+
 
 def computeContribs(urls, rank):
 	"""Calculates URL contributions to the rank of other URLs."""
