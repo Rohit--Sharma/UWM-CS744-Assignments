@@ -11,5 +11,5 @@ $ ./run.sh <small/large> <num_iterations> <num_partitions> <spark_master_hostnam
 ```
 ### Example 
 ```
-$ ./run.sh large 5 96 c220g1-031124vm-1.wisc.cloudlab.us /proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/*xml* pagerank_task1_output 
+$ ./run.sh large 5 96 c220g1-031124vm-1.wisc.cloudlab.us /proj/uwmadison744-f19-PG0/data-part3/enwiki-pages-articles/*xml* pagerank_task3_output 
 ```
