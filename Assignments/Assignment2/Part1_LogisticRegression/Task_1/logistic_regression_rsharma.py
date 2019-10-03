@@ -25,6 +25,10 @@ train = optimizer.minimize(loss)
 # Initializing the variables
 init = tf.global_variables_initializer()
 
+writer = tf.summary.FileWriter('.')
+writer.add_graph(tf.get_default_graph())
+writer.flush()
+
 with tf.Session() as sess:
     sess.run(init)
     batch_size = 1
