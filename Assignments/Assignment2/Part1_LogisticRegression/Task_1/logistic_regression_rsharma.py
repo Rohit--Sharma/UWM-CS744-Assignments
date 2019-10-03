@@ -25,9 +25,6 @@ train = optimizer.minimize(loss)
 # Initializing the variables
 init = tf.global_variables_initializer()
 
-writer = tf.summary.FileWriter('.')
-writer.add_graph(tf.get_default_graph())
-writer.flush()
 
 with tf.Session() as sess:
     sess.run(init)
@@ -40,4 +37,7 @@ with tf.Session() as sess:
         print(loss_val)
         tf.summary.scalar('loss', loss_val)
 
+writer = tf.summary.FileWriter('.')
+writer.add_graph(tf.get_default_graph())
+writer.flush()
 writer.close()
