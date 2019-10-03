@@ -38,3 +38,6 @@ with tf.Session() as sess:
     for iter in range(num_iter):
         _, loss_val = sess.run((train, loss), feed_dict={x: data_x, y: data_y})
         print(loss_val)
+        tf.summary.scalar('loss', loss_val)
+
+writer.close()
