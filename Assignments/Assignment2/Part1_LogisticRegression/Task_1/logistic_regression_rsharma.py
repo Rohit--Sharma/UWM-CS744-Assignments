@@ -25,7 +25,10 @@ train = optimizer.minimize(loss)
 # Initializing the variables
 init = tf.global_variables_initializer()
 
+writer = tf.summary.FileWriter('.')
+writer.add_graph(tf.get_default_graph())
 
+loss_summary = tf.summary.scalar('loss', loss)
 with tf.Session() as sess:
     sess.run(init)
     batch_size = 1
@@ -35,9 +38,7 @@ with tf.Session() as sess:
     for iter in range(num_iter):
         _, loss_val = sess.run((train, loss), feed_dict={x: data_x, y: data_y})
         print(loss_val)
-        tf.summary.scalar('loss', loss_val)
+        writer.add_summary(loss_summary, iter)
 
-writer = tf.summary.FileWriter('.')
-writer.add_graph(tf.get_default_graph())
 writer.flush()
 writer.close()
