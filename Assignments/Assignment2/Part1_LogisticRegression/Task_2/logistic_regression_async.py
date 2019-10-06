@@ -19,11 +19,11 @@ clusterSpec_single = tf.train.ClusterSpec({
 
 clusterSpec_cluster = tf.train.ClusterSpec({
     "ps" : [
-        "10.10.1.1:2222"
+        "node0.rsharma-assign2.uwmadison744-f19-PG0.wisc.cloudlab.us:2222"
     ],
     "worker" : [
-        "10.10.1.1:2224",
-        "10.10.1.2:2222"
+        "node0.rsharma-assign2.uwmadison744-f19-PG0.wisc.cloudlab.us:2224",
+        "node1.rsharma-assign2.uwmadison744-f19-pg0.wisc.cloudlab.us:2222"
     ]
 })
 
@@ -53,8 +53,11 @@ def main(_):
     server = tf.train.Server(clusterinfo, job_name=FLAGS.job_name, task_index=FLAGS.task_index)
 
     if FLAGS.job_name == "ps":
+        print("Executing PS job")
         server.join()
     elif FLAGS.job_name == "worker":
+        print("Executing Worker job")
+
         # Loading dataset
         mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
 
