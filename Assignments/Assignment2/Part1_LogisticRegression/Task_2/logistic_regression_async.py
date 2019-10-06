@@ -94,37 +94,37 @@ def main():
 		tf.summary.scalar("loss", loss)
 		merged = tf.summary.merge_all()
 			
-        # Initializing the variables
-        init = tf.global_variables_initializer()
+                # Initializing the variables
+                init = tf.global_variables_initializer()
 
-        with tf.Session(server.target) as sess:
+                with tf.Session(server.target) as sess:
 		
 		    # putting each tensorboard log into its own dir
-			now = time.time()
-			writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now), sess.graph_def)
-            sess.run(init)
+		    now = time.time()
+                    writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now), sess.graph_def)
+                    sess.run(init)
 
-            for iter in range(num_iter):
-                avg_loss = 0
-                num_batches = int(mnist.train.num_examples/batch_size)
+                    for iter in range(num_iter):
+                    avg_loss = 0
+                    num_batches = int(mnist.train.num_examples/batch_size)
 
-                for i in range(num_batches):
-                    data_x, data_y = mnist.train.next_batch(batch_size)
-                    _, loss_val, summ = sess.run((optimizer, loss, merged), feed_dict={x: data_x, y: data_y})
+                        for i in range(num_batches):
+                            data_x, data_y = mnist.train.next_batch(batch_size)
+                            _, loss_val, summ = sess.run((optimizer, loss, merged), feed_dict={x: data_x, y: data_y})
 
-                    avg_loss += loss_val / num_batches
-					writer.add_summary(summ, iter * num_batches + i)
+                            avg_loss += loss_val / num_batches
+			    writer.add_summary(summ, iter * num_batches + i)
 
-                # printing the loss after every iteration (epoch)
-                if (iter+1) % display_step == 0:
-                    print("Epoch:", '%04d' % (iter+1), "loss=", "{:.9f}".format(avg_loss))
+                        # printing the loss after every iteration (epoch)
+                        if (iter+1) % display_step == 0:
+                            print("Epoch:", '%04d' % (iter+1), "loss=", "{:.9f}".format(avg_loss))
 
-            # Computing the model accuracy
-            correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+                    # Computing the model accuracy
+                    correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
 
-            # Calculate accuracy on test data
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-            print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
+                    # Calculate accuracy on test data
+                    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+                    print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
 
 
 if __name__ == "__main__":
