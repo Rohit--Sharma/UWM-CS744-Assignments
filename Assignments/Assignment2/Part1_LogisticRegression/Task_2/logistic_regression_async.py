@@ -19,19 +19,19 @@ clusterSpec_cluster = tf.train.ClusterSpec({
         "node0:2222"
     ],
     "worker" : [
-        "host_name0:2223",
-        "host_name1:2222"
+        "10.10.1.2:2223",
+        "10.10.1.3:2222"
     ]
 })
 
 clusterSpec_cluster2 = tf.train.ClusterSpec({
     "ps" : [
-        "host_name0:2222"
+        "node0:2222"
     ],
     "worker" : [
-        "host_name0:2223",
-        "host_name1:2222",
-        "host_name2:2222",
+        "node0:2223",
+        "10.10.1.2:2222",
+        "10.10.1.3:2222",
     ]
 })
 
