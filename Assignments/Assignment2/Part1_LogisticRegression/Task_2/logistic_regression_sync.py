@@ -53,6 +53,8 @@ def main():
         with tf.device(tf.train.replica_device_setter(
             worker_device="/job:worker/task:%d" % FLAGS.task_index,
             cluster=clusterinfo)):
+
+            is_chief = (FLAGS.task_index == 0)
             # TF graph input
             x = tf.placeholder("float", [None, 784]) # MNIST data image of shape 28*28=784
             y = tf.placeholder("float", [None, 10]) # 0-9 digits recognition => 10 classes

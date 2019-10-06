@@ -7,8 +7,18 @@ from tensorflow.keras.utils import np_utils
 
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
+# Convert to float and normalise it.
+train_images = train_images.astype(np.float32)/255
+test_images = test_images.astype(np.float32)/255
+
+#Reshape the training and test set
+train_images = train_images.reshape(train_images.shape[0], 28, 28, 1)
+test_images = test_images.reshape(test_images.shape[0], 28, 28, 1)
+
+# One-hot encoding of the labels
 train_labels = np_utils.to_categorical(train_labels)
 test_labels = np_utils.to_categorical(test_labels)
+
 model = models.Sequential()
 
 
@@ -61,8 +71,4 @@ model.add(layers.Dense(
 
 
 model.compile(loss='categorical_crossentropy', optimizer='sgd')
-model.fit(train_images, train_labels, epochs=10, validation_data=(test_images, test_labels))
-#x = tf.placeholder(tf.float32, shape=[None, 3])
-#linear_model = tf.layers.Dense(units=1)
-#y = linear_model(x)
-
+model.fit(train_images, train_labels, epochs=10, batch_size=100, validation_data=(test_images, test_labels))
