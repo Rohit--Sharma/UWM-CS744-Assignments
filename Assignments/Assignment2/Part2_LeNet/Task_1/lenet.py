@@ -3,12 +3,12 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, AveragePooling2D
 from tensorflow.keras.datasets import mnist
-
+from tensorflow.keras.utils import np_utils
 
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
-
-
+train_labels = np_utils.to_categorical(train_labels)
+test_labels = np_utils.to_categorical(test_labels)
 model = models.Sequential()
 
 
@@ -16,7 +16,7 @@ model.add(layers.Conv2D(
 	filters=6, 
 	kernel_size=(5,5),
 	stride=1,
-	padding="valid",
+	padding="same",
 	activation="tanh",
 	input_shape = (32, 32, 1)
 	))
