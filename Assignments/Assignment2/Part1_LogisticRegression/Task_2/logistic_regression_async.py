@@ -22,8 +22,8 @@ clusterSpec_cluster = tf.train.ClusterSpec({
         "localhost:2222"
     ],
     "worker" : [
-        "10.10.1.2:2223",
-        "10.10.1.3:2222"
+        "localhost:2223",
+        "10.10.1.2:2222"
     ]
 })
 
