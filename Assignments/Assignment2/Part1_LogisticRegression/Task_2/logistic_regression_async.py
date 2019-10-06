@@ -64,9 +64,9 @@ def main():
 
         #model hyperparameters
         learning_rate = 0.01
-        display_step = 50
-        batch_size = 100
-        num_iter = 500
+        display_step = 1
+        batch_size = 75
+        num_iter = 75
 
         # Ref: https://github.com/tensorflow/examples/blob/master/community/en/docs/deploy/distributed.md#distributed-tensorflow
         # Assigns ops to the local worker by default.
@@ -97,7 +97,7 @@ def main():
                 avg_loss = 0
                 num_batches = int(mnist.train.num_examples/batch_size)
 
-                for _ in range(num_batches):
+                for i in range(num_batches):
                     data_x, data_y = mnist.train.next_batch(batch_size)
                     _, loss_val = sess.run((optimizer, loss), feed_dict={x: data_x, y: data_y})
 
