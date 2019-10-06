@@ -12,7 +12,7 @@ y = tf.placeholder("float", [None, 10]) # 0-9 digits recognition => 10 classes
 W = tf.Variable(tf.zeros([784, 10]))
 b = tf.Variable(tf.zeros([10]))
 
-# model hyperparameters
+#model hyperparameters
 learning_rate = 0.01
 display_step = 1
 batch_size = 100
@@ -45,13 +45,12 @@ with tf.Session() as sess:
 
         for i in range(num_batches):
             data_x, data_y = mnist.train.next_batch(batch_size)
-            c, summ = sess.run([loss, merged], feed_dict={x: data_x, y: data_y})
+            _, c, summ = sess.run([optimizer, loss, merged], feed_dict={x: data_x, y: data_y})
 
-            # getting average loss per iteration
             avg_loss += c / num_batches
             writer.add_summary(summ, iter * num_batches + i)
 
-        # printing the avg loss after every iteration (epoch)
+        # printing the average loss after every iteration (epoch)
         if (iter+1) % display_step == 0:
             print("Epoch:", '%04d' % (iter+1), "cost=", "{:.9f}".format(avg_loss))
 
