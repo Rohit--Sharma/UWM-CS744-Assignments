@@ -23,7 +23,7 @@ clusterSpec_cluster = tf.train.ClusterSpec({
     ],
     "worker" : [
         "node0.rsharma-assign2.uwmadison744-f19-PG0.wisc.cloudlab.us:2224",
-        "node1.rsharma-assign2.uwmadison744-f19-pg0.wisc.cloudlab.us:2222"
+        "node1.rsharma-assign2.uwmadison744-f19-pg0.wisc.cloudlab.us:2226"
     ]
 })
 
