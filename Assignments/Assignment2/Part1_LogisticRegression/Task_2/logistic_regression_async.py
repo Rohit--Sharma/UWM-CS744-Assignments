@@ -1,4 +1,5 @@
 import sys
+import time
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -67,6 +68,7 @@ def main():
         display_step = 1
         batch_size = 75
         num_iter = 75
+		
 
         # Ref: https://github.com/tensorflow/examples/blob/master/community/en/docs/deploy/distributed.md#distributed-tensorflow
         # Assigns ops to the local worker by default.
@@ -87,10 +89,19 @@ def main():
 
             optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
 
+
+		# adding loss summary
+		tf.summary.scalar("loss", loss)
+		merged = tf.summary.merge_all()
+			
         # Initializing the variables
         init = tf.global_variables_initializer()
 
         with tf.Session(server.target) as sess:
+		
+		    # putting each tensorboard log into its own dir
+			now = time.time()
+			writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now), sess.graph_def)
             sess.run(init)
 
             for iter in range(num_iter):
@@ -99,9 +110,10 @@ def main():
 
                 for i in range(num_batches):
                     data_x, data_y = mnist.train.next_batch(batch_size)
-                    _, loss_val = sess.run((optimizer, loss), feed_dict={x: data_x, y: data_y})
+                    _, loss_val, summ = sess.run((optimizer, loss, merged), feed_dict={x: data_x, y: data_y})
 
                     avg_loss += loss_val / num_batches
+					writer.add_summary(summ, iter * num_batches + i)
 
                 # printing the loss after every iteration (epoch)
                 if (iter+1) % display_step == 0:
