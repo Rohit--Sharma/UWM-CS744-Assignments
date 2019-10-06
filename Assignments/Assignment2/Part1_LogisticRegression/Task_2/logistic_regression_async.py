@@ -19,10 +19,10 @@ clusterSpec_single = tf.train.ClusterSpec({
 
 clusterSpec_cluster = tf.train.ClusterSpec({
     "ps" : [
-        "localhost:2222"
+        "10.10.1.1:2222"
     ],
     "worker" : [
-        "localhost:2223",
+        "10.10.1.1:2223",
         "10.10.1.2:2222"
     ]
 })
