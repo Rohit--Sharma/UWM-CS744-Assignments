@@ -45,7 +45,7 @@ clusterSpec = {
 }
 
 
-def main():
+def main(_):
     # Create a cluster from the parameter server and worker hosts.
     clusterinfo = clusterSpec[FLAGS.deploy_mode]
 
