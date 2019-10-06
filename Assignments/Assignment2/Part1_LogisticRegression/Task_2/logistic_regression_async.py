@@ -1,7 +1,7 @@
 import sys
+import time
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
-
 
 # define the command line flags that can be sent
 tf.app.flags.DEFINE_integer("task_index", 0, "Index of task with in the job.")
@@ -12,26 +12,26 @@ FLAGS = tf.app.flags.FLAGS
 tf.logging.set_verbosity(tf.logging.DEBUG)
 
 clusterSpec_single = tf.train.ClusterSpec({
-    "worker" : [
+    "worker": [
         "localhost:2222"
     ]
 })
 
 clusterSpec_cluster = tf.train.ClusterSpec({
-    "ps" : [
+    "ps": [
         "node0.rsharma-assign2.uwmadison744-f19-PG0.wisc.cloudlab.us:2222"
     ],
-    "worker" : [
+    "worker": [
         "node0.rsharma-assign2.uwmadison744-f19-PG0.wisc.cloudlab.us:2223",
         "node1.rsharma-assign2.uwmadison744-f19-pg0.wisc.cloudlab.us:2222"
     ]
 })
 
 clusterSpec_cluster2 = tf.train.ClusterSpec({
-    "ps" : [
+    "ps": [
         "localhost:2222"
     ],
-    "worker" : [
+    "worker": [
         "localhost:2223",
         "10.10.1.2:2222",
         "10.10.1.3:2222",
@@ -62,20 +62,21 @@ def main():
         # Loading dataset
         mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
 
-        #model hyperparameters
+        # model hyperparameters
         learning_rate = 0.01
-        display_step = 50
-        batch_size = 100
-        num_iter = 500
+        display_step = 1
+        batch_size = 75
+        num_iter = 75
 
         # Ref: https://github.com/tensorflow/examples/blob/master/community/en/docs/deploy/distributed.md#distributed-tensorflow
         # Assigns ops to the local worker by default.
-        with tf.device(tf.train.replica_device_setter(worker_device="/job:worker/task:%d" % FLAGS.task_index, cluster=clusterinfo)):
+        with tf.device(tf.train.replica_device_setter(worker_device="/job:worker/task:%d" % FLAGS.task_index,
+                                                      cluster=clusterinfo)):
             print("Starting a job with task id:", FLAGS.task_index)
 
             # TF graph input
-            x = tf.placeholder("float", [None, 784]) # MNIST data image of shape 28*28=784
-            y = tf.placeholder("float", [None, 10]) # 0-9 digits recognition => 10 classes
+            x = tf.placeholder("float", [None, 784])  # MNIST data image of shape 28*28=784
+            y = tf.placeholder("float", [None, 10])  # 0-9 digits recognition => 10 classes
 
             # Set model weights
             W = tf.Variable(tf.zeros([784, 10]))
@@ -87,25 +88,34 @@ def main():
 
             optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
 
+        # adding loss summary
+        tf.summary.scalar("loss", loss)
+        merged = tf.summary.merge_all()
+
         # Initializing the variables
         init = tf.global_variables_initializer()
 
         with tf.Session(server.target) as sess:
+
+            # putting each tensorboard log into its own dir
+            now = time.time()
+            writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now), sess.graph_def)
             sess.run(init)
 
             for iter in range(num_iter):
                 avg_loss = 0
-                num_batches = int(mnist.train.num_examples/batch_size)
+                num_batches = int(mnist.train.num_examples / batch_size)
 
-                for _ in range(num_batches):
+                for i in range(num_batches):
                     data_x, data_y = mnist.train.next_batch(batch_size)
-                    _, loss_val = sess.run((optimizer, loss), feed_dict={x: data_x, y: data_y})
+                    _, loss_val, summ = sess.run((optimizer, loss, merged), feed_dict={x: data_x, y: data_y})
 
                     avg_loss += loss_val / num_batches
+                    writer.add_summary(summ, iter * num_batches + i)
 
                 # printing the loss after every iteration (epoch)
-                if (iter+1) % display_step == 0:
-                    print("Epoch:", '%04d' % (iter+1), "loss=", "{:.9f}".format(avg_loss))
+                if (iter + 1) % display_step == 0:
+                    print("Epoch:", '%04d' % (iter + 1), "loss=", "{:.9f}".format(avg_loss))
 
             # Computing the model accuracy
             correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
