@@ -80,7 +80,6 @@ def main():
             #init_token_op = opt.get_init_tokens_op()
             #chief_queue_runner = opt.get_chief_queue_runner()
 
-
             # Initialising the variables.
             init_op = tf.global_variables_initializer()
             # The StopAtStepHook handles stopping after running given steps.
@@ -102,11 +101,6 @@ def main():
                 iter = 0
                 while not mon_sess.should_stop():
                     data_x, data_y = mnist.train.next_batch(batch_size)
-
-                    # Run a training step asynchronously.
-                    # See `tf.train.SyncReplicasOptimizer` for additional details on how to
-                    # perform *synchronous* training.
-                    # mon_sess.run handles AbortedError in case of preempted PS.
                     _, loss_val = mon_sess.run((optimizer, loss), feed_dict={x: data_x, y: data_y})
 
                     # printing the loss after every iteration (epoch)
