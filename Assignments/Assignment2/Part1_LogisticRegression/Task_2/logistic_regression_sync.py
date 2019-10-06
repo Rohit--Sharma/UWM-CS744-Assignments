@@ -82,7 +82,7 @@ def main():
 
 
             # Initialising the variables.
-            init = tf.global_variables_initializer()
+            init_op = tf.global_variables_initializer()
             # The StopAtStepHook handles stopping after running given steps.
             hooks=[tf.train.StopAtStepHook(last_step=1000000)]
             # The MonitoredTrainingSession takes care of session initialization,
