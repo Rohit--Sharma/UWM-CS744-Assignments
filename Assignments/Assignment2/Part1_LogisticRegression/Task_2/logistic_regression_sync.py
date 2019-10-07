@@ -77,8 +77,8 @@ def main():
 
             optimizer = tf.train.AdagradOptimizer(learning_rate)
             optimizer = tf.train.SyncReplicasOptimizer(optimizer, replicas_to_aggregate=2,
-                                   total_num_replicas=2).minimize(loss, global_step=global_step)
-            
+                                   total_num_replicas=2)
+            train_step = optimizer.minimize(loss, global_step=global_step)
             chief_queue_runner = optimizer.get_chief_queue_runner()
             sync_init_op = optimizer.get_init_tokens_op()
 
