@@ -103,7 +103,7 @@ def main():
 
                     for _ in range(num_batches):
                         data_x, data_y = mnist.train.next_batch(batch_size)
-                        _, loss_val = sess.run((optimizer, loss), feed_dict={x: data_x, y: data_y})
+                        _, loss_val = sess.run((train_step, loss), feed_dict={x: data_x, y: data_y})
 
                         avg_loss += loss_val / num_batches
 
