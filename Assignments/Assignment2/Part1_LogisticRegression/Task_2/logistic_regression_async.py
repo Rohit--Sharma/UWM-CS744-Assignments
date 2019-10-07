@@ -88,9 +88,9 @@ def main():
 
             optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
 
-        # adding loss summary
-        tf.summary.scalar("loss", loss)
-        merged = tf.summary.merge_all()
+            # adding loss summary
+            tf.summary.scalar("loss", loss)
+            merged = tf.summary.merge_all()
 
         # Initializing the variables
         init = tf.global_variables_initializer()
