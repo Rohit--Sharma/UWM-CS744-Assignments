@@ -126,4 +126,9 @@ def main():
 
 
 if __name__ == "__main__":
+    time_begin = time.time()
     main()
+    time_end = time.time()
+
+    training_time = time_end - time_begin
+    print('Total time taken:', training_time, 's')

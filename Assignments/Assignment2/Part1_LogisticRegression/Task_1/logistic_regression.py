@@ -50,6 +50,8 @@ server = tf.train.Server(clusterinfo, job_name=FLAGS.job_name, task_index=FLAGS.
 if FLAGS.job_name == "ps":
     server.join()
 elif FLAGS.job_name == "worker":
+    time_begin = time.time()
+
     mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
 
     # TF graph input
@@ -111,3 +113,8 @@ elif FLAGS.job_name == "worker":
 
     writer.flush()
     writer.close()
+
+    time_end = time.time()
+
+    training_time = time_end - time_begin
+    print('Total time taken:', training_time, 's')
