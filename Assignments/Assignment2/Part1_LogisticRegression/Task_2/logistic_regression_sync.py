@@ -26,13 +26,13 @@ clusterSpec_cluster = tf.train.ClusterSpec({
 })
 
 clusterSpec_cluster2 = tf.train.ClusterSpec({
-    "ps" : [
-        "localhost:2222"
+    "ps": [
+        "node0:2222"
     ],
-    "worker" : [
-        "localhost:2223",
-        "10.10.1.2:2222",
-        "10.10.1.3:2222",
+    "worker": [
+        "node0:2223",
+        "node1:2222",
+        "node2:2222",
     ]
 })
 
