@@ -66,7 +66,7 @@ def main():
         learning_rate = 0.01
         display_step = 1
         batch_size = 75
-        num_iter = 75
+        num_iter = 5
 
         # Ref: https://github.com/tensorflow/examples/blob/master/community/en/docs/deploy/distributed.md#distributed-tensorflow
         # Assigns ops to the local worker by default.
@@ -75,8 +75,8 @@ def main():
             print("Starting a job with task id:", FLAGS.task_index)
 
             # TF graph input
-            x = tf.placeholder("float", [None, 784])  # MNIST data image of shape 28*28=784
-            y = tf.placeholder("float", [None, 10])  # 0-9 digits recognition => 10 classes
+            x = tf.placeholder(tf.float32, [None, 784])  # MNIST data image of shape 28*28=784
+            y = tf.placeholder(tf.float32, [None, 10])  # 0-9 digits recognition => 10 classes
 
             # Set model weights
             W = tf.Variable(tf.zeros([784, 10]))
