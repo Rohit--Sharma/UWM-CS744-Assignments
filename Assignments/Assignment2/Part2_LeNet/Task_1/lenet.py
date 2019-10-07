@@ -33,7 +33,6 @@ model.add(Conv2D(
 
 model.add(AveragePooling2D(
 	pool_size=(2,2),
-	padding=0,
 	strides=2,
 	))
 
@@ -55,7 +54,6 @@ model.add(Flatten())
 
 model.add(Dense(
 	units=120,
-	kernel_size=(1,1),
 	activation="tanh"
 	))
 
