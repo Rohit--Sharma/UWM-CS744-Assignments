@@ -1,6 +1,6 @@
-from tensorflow.examples.tutorials.mnist import input_data
-
 import tensorflow as tf
+
+from tensorflow.examples.tutorials.mnist import input_data
 
 # define the command line flags that can be sent
 tf.app.flags.DEFINE_integer("task_index", 0, "Index of task with in the job.")
@@ -50,6 +50,13 @@ def main():
     if FLAGS.job_name == "ps":
         server.join()
     elif FLAGS.job_name == "worker":
+        mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
+        # model hyperparameters
+        learning_rate = 0.01
+        display_step = 1
+        batch_size = 100
+        num_iter = 50
+
         with tf.device(tf.train.replica_device_setter(
             worker_device="/job:worker/task:%d" % FLAGS.task_index,
             cluster=clusterinfo)):
@@ -63,24 +70,18 @@ def main():
             W = tf.Variable(tf.zeros([784, 10]))
             b = tf.Variable(tf.zeros([10]))
 
-            #model hyperparameters
-            learning_rate = 0.01
-            display_step = 1
-            batch_size = 100
-            num_iter = 50
-
             # logistic regression functions
             prediction = tf.nn.softmax(tf.matmul(x, W) + b)
             loss = tf.reduce_mean(-tf.reduce_sum(y*tf.log(prediction), reduction_indices=1))
 
             global_step = tf.contrib.framework.get_or_create_global_step()
 
-            optimizer = tf.train.AdagradOptimizer(0.01).minimize(loss, global_step=global_step)
+            optimizer = tf.train.AdagradOptimizer(learning_rate)
             optimizer = tf.train.SyncReplicasOptimizer(optimizer, replicas_to_aggregate=2,
-                                   total_num_replicas=2)
-
-            sync_init_op = optimizer.get_init_tokens_op()
+                                   total_num_replicas=2).minimize(loss, global_step=global_step)
+            
             chief_queue_runner = optimizer.get_chief_queue_runner()
+            sync_init_op = optimizer.get_init_tokens_op()
 
             # Initialising the variables.
             init_op = tf.global_variables_initializer()
