@@ -66,7 +66,7 @@ def main():
         learning_rate = 0.01
         display_step = 1
         batch_size = 75
-        num_iter = 5
+        num_iter = 10
 
         # Ref: https://github.com/tensorflow/examples/blob/master/community/en/docs/deploy/distributed.md#distributed-tensorflow
         # Assigns ops to the local worker by default.

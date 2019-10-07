@@ -17,11 +17,11 @@ clusterSpec_single = tf.train.ClusterSpec({
 
 clusterSpec_cluster = tf.train.ClusterSpec({
     "ps" : [
-        "node0.rsharma-assign2.uwmadison744-f19-PG0.wisc.cloudlab.us:2222"
+        "node0:2222"
     ],
     "worker" : [
-        "node0.rsharma-assign2.uwmadison744-f19-PG0.wisc.cloudlab.us:2223",
-        "node1.rsharma-assign2.uwmadison744-f19-pg0.wisc.cloudlab.us:2222"
+        "node0:2223",
+        "node1:2222"
     ]
 })
 
@@ -53,8 +53,8 @@ def main():
         # model hyperparameters
         learning_rate = 0.01
         display_step = 1
-        batch_size = 100
-        num_iter = 50
+        batch_size = 75
+        num_iter = 10
 
         with tf.device(tf.train.replica_device_setter(
             worker_device="/job:worker/task:%d" % FLAGS.task_index,
