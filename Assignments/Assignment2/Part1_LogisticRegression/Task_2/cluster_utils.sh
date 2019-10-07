@@ -33,9 +33,9 @@ function start_cluster() {
         if [ "$2" = "single" ]; then
             nohup ssh node0 "cd ~/tf ; python3 $1 --deploy_mode=single" > serverlog-0.out 2>&1&
         elif [ "$2" = "cluster" ]; then
-            nohup ssh node0 "cd ~/tf ; python3 $1 --deploy_mode=cluster  --job_name=ps" > serverlog-ps-0.out 2>&1&
-            nohup ssh node0 "cd ~/tf ; python3 $1 --deploy_mode=cluster  --task_index=0" > serverlog-0.out 2>&1&
-            nohup ssh node1 "cd ~/tf ; python3 $1 --deploy_mode=cluster  --task_index=1" > serverlog-1.out 2>&1&
+            nohup ssh node0 "cd ~/tf ; python3 -u $1 --deploy_mode=cluster  --job_name=ps" > serverlog-ps-0.out 2>&1&
+            nohup ssh node0 "cd ~/tf ; python3 -u $1 --deploy_mode=cluster  --task_index=0" > serverlog-0.out 2>&1&
+            nohup ssh node1 "cd ~/tf ; python3 -u $1 --deploy_mode=cluster  --task_index=1" > serverlog-1.out 2>&1&
         else
             nohup ssh node0 "cd ~/tf ; python3 $1 --deploy_mode=cluster2  --job_name=ps" > serverlog-ps-0.out 2>&1&
             nohup ssh node0 "cd ~/tf ; python3 $1 --deploy_mode=cluster2  --task_index=0" > serverlog-0.out 2>&1&
