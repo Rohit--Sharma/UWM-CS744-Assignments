@@ -104,12 +104,12 @@ def main():
             
             # putting each tensorboard log into its own dir
             now = time.time()
-            writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now), sess.graph_def)
+            writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now), mon_sess.graph_def)
 
             while not mon_sess.should_stop():
                 data_x, data_y = mnist.train.next_batch(batch_size)
                 _, loss_val, summ = mon_sess.run((training_op, loss, merged), feed_dict={x: data_x, y: data_y})
-                
+
                 writer.add_summary(summ, iter)
                 if (iter+1) % display_step == 0:		
                     print("Epoch:", '%04d' % (iter+1), "cost=", "{:.9f}".format(loss_val))
