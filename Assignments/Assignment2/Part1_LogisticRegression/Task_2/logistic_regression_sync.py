@@ -88,7 +88,7 @@ def main():
                                    total_num_replicas=2)
             
             training_op = optimizer.minimize(loss, global_step=global_step)
-            hooks = [optimizer.make_session_run_hook(is_chief, num_tokens=0)]
+            hooks = [optimizer.make_session_run_hook(is_chief, num_tokens=0),  tf.train.StopAtStepHook(last_step=num_iter)]
             # tf.train.StopAtStepHook(last_step=num_iter), 
             # adding loss summary
             tf.summary.scalar("loss", loss)
