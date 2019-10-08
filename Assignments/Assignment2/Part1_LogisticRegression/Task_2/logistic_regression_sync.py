@@ -70,16 +70,24 @@ def main():
             W = tf.Variable(tf.zeros([784, 10]))
             b = tf.Variable(tf.zeros([10]))
 
-            # logistic regression functions
+            # logistic regression prediction and lossfunctions
             prediction = tf.nn.softmax(tf.matmul(x, W) + b)
             loss = tf.reduce_mean(-tf.reduce_sum(y*tf.log(prediction), reduction_indices=1))
 
             global_step = tf.contrib.framework.get_or_create_global_step()
 
-            optimizer = tf.train.AdagradOptimizer(learning_rate)
+            # Gradient Descent
+            optimizer = tf.train.GradientDescentOptimizer(learning_rate)
             optimizer = tf.train.SyncReplicasOptimizer(optimizer, replicas_to_aggregate=2,
                                    total_num_replicas=2)
             train_step = optimizer.minimize(loss, global_step=global_step)
+            
+            local_init_op = optimizer.local_step_init_op
+            if is_chief:
+                local_init_op = optimizer.chief_init_op
+
+            ready_for_local_init_op = optimizer.ready_for_local_init_op
+
             chief_queue_runner = optimizer.get_chief_queue_runner()
             sync_init_op = optimizer.get_init_tokens_op()
 
@@ -89,6 +97,8 @@ def main():
             sv = tf.train.Supervisor(is_chief=is_chief,
                 logdir="/tmp/train_logs",
                 init_op=init_op,
+                local_init_op=local_init_op,
+                ready_for_local_init_op=ready_for_local_init_op,
                 global_step=global_step,
                 save_model_secs=600)
 
