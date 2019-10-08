@@ -113,7 +113,7 @@ def main():
 
                 writer.add_summary(summ, iter)
                 if (iter+1) % display_step == 0:		
-                    print("Epoch:", '%04d' % (iter+1), "cost=", "{:.9f}".format(loss_val))
+                    print("Epoch:", '%04d' % (iter + 1), "loss=", "{:.9f}".format(loss_val))
                 iter += 1
             print('Done',FLAGS.task_index)
 
