@@ -90,6 +90,10 @@ def main():
             training_op = optimizer.minimize(loss, global_step=global_step)
             sync_replicas_hook = optimizer.make_session_run_hook(is_chief, num_tokens=0)
 
+            # adding loss summary
+            loss = tf.summary.scalar("loss", loss)
+            merged = tf.summary.merge_all()
+
             mon_sess = tf.train.MonitoredTrainingSession(
                 master=server.target, 
                 is_chief=is_chief,
@@ -97,9 +101,16 @@ def main():
                 hooks=[sync_replicas_hook],
                 stop_grace_period_secs=10)
             iter = 0
+            
+            # putting each tensorboard log into its own dir
+            now = time.time()
+            writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now), sess.graph_def)
+
             while not mon_sess.should_stop():
                 data_x, data_y = mnist.train.next_batch(batch_size)
-                _, loss_val = mon_sess.run((training_op, loss), feed_dict={x: data_x, y: data_y})
+                _, loss_val, summ = mon_sess.run((training_op, loss, merged), feed_dict={x: data_x, y: data_y})
+                
+                writer.add_summary(summ, iter)
                 if (iter+1) % display_step == 0:		
                     print("Epoch:", '%04d' % (iter+1), "cost=", "{:.9f}".format(loss_val))
                 iter += 1
