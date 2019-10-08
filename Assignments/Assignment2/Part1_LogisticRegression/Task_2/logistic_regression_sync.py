@@ -56,12 +56,11 @@ def main():
         display_step = 1
         batch_size = 75
         num_iter = 10
-
+        is_chief = (FLAGS.task_index == 0)
         with tf.device(tf.train.replica_device_setter(
             worker_device="/job:worker/task:%d" % FLAGS.task_index,
             cluster=clusterinfo)):
 
-            is_chief = (FLAGS.task_index == 0)
             # TF graph input
             x = tf.placeholder("float", [None, 784]) # MNIST data image of shape 28*28=784
             y = tf.placeholder("float", [None, 10]) # 0-9 digits recognition => 10 classes
@@ -73,6 +72,10 @@ def main():
             # logistic regression prediction and lossfunctions
             prediction = tf.nn.softmax(tf.matmul(x, W) + b)
             loss = tf.reduce_mean(-tf.reduce_sum(y*tf.log(prediction), reduction_indices=1))
+
+            # Calculate accuracy
+            correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+            accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
             global_step = tf.contrib.framework.get_or_create_global_step()
 
@@ -122,11 +125,6 @@ def main():
                     if (iter+1) % display_step == 0:
                         print("Epoch:", '%04d' % (iter+1), "loss=", "{:.9f}".format(avg_loss))
 
-                # Computing the model accuracy
-                    correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
-
-                # Calculate accuracy on test data
-                accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
                 print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
 
 
