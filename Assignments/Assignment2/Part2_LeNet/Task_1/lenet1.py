@@ -97,7 +97,8 @@ def main():
 	# Train the model on training set
 	lenet_model.fit(train_images, train_labels, epochs=10, batch_size=100, validation_data=(test_images, test_labels))
 	# Test the model on testing set
-	lenet_model.evaluate(x=test_images, y=test_labels)
+	_, accuracy = lenet_model.evaluate(x=test_images, y=test_labels, batch_size=100)
+	print('Accuracy:', accuracy)
 
 
 if __name__ == "__main__":
