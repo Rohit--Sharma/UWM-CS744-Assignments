@@ -6,7 +6,7 @@ source cluster_utils.sh
 
 while true
 do
-    echo -n "Please select a mode: Single: s, Distributed-synchronous: sync, Distributed-asynchronous: async"
+    echo "Please select a mode: Single: s, Distributed-synchronous: sync, Distributed-asynchronous: async"
     read option
     if [ "$option" = "s" ] || [ "$option" = "sync" ] || [ "$option" = "async" ]; then
         break
@@ -18,7 +18,7 @@ done
 if [ "$option" = "sync" ] || [ "$option" = "async" ]; then
     while true
     do
-        echo -n "Please select the cluster: cluster or cluster2"
+        echo "Please select the cluster: cluster or cluster2"
         read cluster
         if [ "$cluster" = "cluster" ] || [ "$cluster" = "cluster2" ]; then
             break
