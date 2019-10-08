@@ -91,7 +91,7 @@ def main():
             hooks = [optimizer.make_session_run_hook(is_chief, num_tokens=0)]
             # tf.train.StopAtStepHook(last_step=num_iter), 
             # adding loss summary
-            loss = tf.summary.scalar("loss", loss)
+            tf.summary.scalar("loss", loss)
             merged = tf.summary.merge_all()
 
             mon_sess = tf.train.MonitoredTrainingSession(
@@ -112,8 +112,7 @@ def main():
                 _, loss_val, summ = mon_sess.run((training_op, loss, merged), feed_dict={x: data_x, y: data_y})
 
                 writer.add_summary(summ, iter)
-                if (iter+1) % display_step == 0:		
-                    print("Epoch:", '%04d' % (iter + 1), "loss=", "{:.9f}".format(loss_val))
+                print("Epoch:", '%04d' % (iter + 1), "loss=", "{:.9f}".format(loss_val))
                 iter += 1
             print('Done',FLAGS.task_index)
 
