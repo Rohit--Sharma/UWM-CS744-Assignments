@@ -88,7 +88,8 @@ def main():
                                    total_num_replicas=2)
             
             training_op = optimizer.minimize(loss, global_step=global_step)
-            hooks = [tf.train.StopAtStepHook(last_step=num_iter), optimizer.make_session_run_hook(is_chief, num_tokens=0)]
+            hooks = [optimizer.make_session_run_hook(is_chief, num_tokens=0)]
+            # tf.train.StopAtStepHook(last_step=num_iter), 
             # adding loss summary
             loss = tf.summary.scalar("loss", loss)
             merged = tf.summary.merge_all()
@@ -98,6 +99,7 @@ def main():
                 is_chief=is_chief,
                 config=config,
                 hooks=hooks,
+                stop_grace_period_secs=10,
                 checkpoint_dir="/tmp/train_logs")
             iter = 0
             
