@@ -98,7 +98,7 @@ def main():
                 is_chief=is_chief,
                 config=config,
                 hooks=hooks,
-                stop_grace_period_secs=10)
+                checkpoint_dir="/tmp/train_logs")
             iter = 0
             
             # putting each tensorboard log into its own dir
