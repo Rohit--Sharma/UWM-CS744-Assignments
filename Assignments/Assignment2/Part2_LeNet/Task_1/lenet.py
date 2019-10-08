@@ -12,8 +12,7 @@ from tensorflow.keras.utils import to_categorical
 # Configuration of the cluster
 os.environ["TF_CONFIG"] = json.dumps({
     "cluster": {
-        "worker": ["node0:2222", "node1:2222", "node2:2222"],
-        "ps": ["host4:port", "host5:port"]
+        "worker": ["node0:2222", "node1:2222", "node2:2222"]
     },
    "task": {"type": "worker", "index": 0}
 })
