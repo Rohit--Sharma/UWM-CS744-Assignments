@@ -58,7 +58,7 @@ def main():
         learning_rate = 0.01
         display_step = 1
         batch_size = 75
-        num_iter = 10
+        num_iter = 100000
         is_chief = (FLAGS.task_index == 0)
         with tf.device(tf.train.replica_device_setter(
             worker_device="/job:worker/task:%d" % FLAGS.task_index,
@@ -88,8 +88,7 @@ def main():
                                    total_num_replicas=2)
             
             training_op = optimizer.minimize(loss, global_step=global_step)
-            sync_replicas_hook = optimizer.make_session_run_hook(is_chief, num_tokens=0)
-
+            hooks = [tf.train.StopAtStepHook(last_step=num_iter), optimizer.make_session_run_hook(is_chief, num_tokens=0)]
             # adding loss summary
             loss = tf.summary.scalar("loss", loss)
             merged = tf.summary.merge_all()
@@ -98,13 +97,13 @@ def main():
                 master=server.target, 
                 is_chief=is_chief,
                 config=config,
-                hooks=[sync_replicas_hook],
+                hooks=hooks,
                 stop_grace_period_secs=10)
             iter = 0
             
             # putting each tensorboard log into its own dir
             now = time.time()
-            writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now), mon_sess.graph_def)
+            writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now))
 
             while not mon_sess.should_stop():
                 data_x, data_y = mnist.train.next_batch(batch_size)
