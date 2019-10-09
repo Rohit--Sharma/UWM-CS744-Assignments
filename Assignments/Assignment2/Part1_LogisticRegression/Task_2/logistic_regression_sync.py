@@ -61,9 +61,10 @@ def main():
         num_iter = 10000
         is_chief = (FLAGS.task_index == 0)
         checkppint_steps = 50
-        number_of_replicas = len(clusterinfo["worker"])
+        number_of_replicas = 2
         print("Total number of replicas : %d", number_of_replicas) 
         worker_device = "/job:%s/task:%d/cpu:0" % (FLAGS.job_name,FLAGS.task_index)
+        
         with tf.device(tf.train.replica_device_setter(
             worker_device=worker_device,
             cluster=clusterinfo)):
@@ -107,7 +108,6 @@ def main():
                 stop_grace_period_secs=10,
                 checkpoint_dir="/tmp/train_logs",
                 save_checkpoint_steps=checkppint_steps)
-            iter = 0
             
             # putting each tensorboard log into its own dir
             now = time.time()
@@ -126,7 +126,7 @@ def main():
 
             print('Done',FLAGS.task_index)
             # Test model
-            #print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}, session=mon_sess))
+            # print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}, session=mon_sess))
 
 if __name__ == "__main__":
     time_begin = time.time()
