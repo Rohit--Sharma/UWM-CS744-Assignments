@@ -96,9 +96,9 @@ def main():
 		lenet_model = build_and_compile_lenet_model()
 
 	# Train the model on training set
-	lenet_model.fit(train_images, train_labels, epochs=10, batch_size=100, validation_data=(test_images, test_labels), steps_per_epoch=2)
+	lenet_model.fit(train_images, train_labels, epochs=10, batch_size=30, validation_data=(test_images, test_labels), steps_per_epoch=2)
 	# Test the model on testing set
-	_, accuracy = lenet_model.evaluate(x=test_images, y=test_labels, batch_size=100)
+	_, accuracy = lenet_model.evaluate(x=test_images, y=test_labels, batch_size=30)
 	print('Accuracy:', accuracy)
 
 
