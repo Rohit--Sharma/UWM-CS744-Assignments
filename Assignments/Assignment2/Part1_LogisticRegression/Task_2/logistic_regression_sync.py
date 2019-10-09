@@ -117,7 +117,9 @@ def main():
                     print("Epoch:", '%04d' % (iter + 1), "loss=", "{:.9f}".format(loss_val))
                 iter += 1
             print('Done',FLAGS.task_index)
-            print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
+            # Test model
+            with tf.Session(server.target) as s:
+                print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}, session=s))
 
 if __name__ == "__main__":
     time_begin = time.time()
