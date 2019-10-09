@@ -11,12 +11,23 @@ from tensorflow.keras.utils import to_categorical
 
 
 # Configuration of the cluster
-os.environ["TF_CONFIG"] = json.dumps({
-    "cluster": {
-        "worker": ["node0:2222", "node1:2222", "node2:2222"]
-    },
-   "task": {"type": "worker", "index": int(sys.argv[1])}
-})
+num_workers = int(sys.argv[1])
+curr_task_idx = int(sys.argv[2])
+
+cluster_conf = {
+	'cluster': {
+		'worker': []
+	},
+	'task': {
+		'type': 'worker',
+		'index': curr_task_idx
+	}
+}
+
+for worker_idx in range(num_workers):
+	cluster_conf['cluster']['worker'].append('node{0}:2222'.format(worker_idx))
+
+os.environ["TF_CONFIG"] = json.dumps(cluster_conf)
 
 
 # Define the LeNet model and compile it. This has to be done in a Distributed strategy
