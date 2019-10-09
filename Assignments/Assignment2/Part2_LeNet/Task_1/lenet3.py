@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import numpy as np
 import tensorflow as tf
@@ -15,7 +14,7 @@ os.environ["TF_CONFIG"] = json.dumps({
     "cluster": {
         "worker": ["node0:2222", "node1:2222", "node2:2222"]
     },
-   "task": {"type": "worker", "index": int(sys.argv[1])}
+   "task": {"type": "worker", "index": 2}
 })
 
 
@@ -96,10 +95,9 @@ def main():
 		lenet_model = build_and_compile_lenet_model()
 
 	# Train the model on training set
-	lenet_model.fit(train_images, train_labels, epochs=10, batch_size=300, validation_data=(test_images, test_labels), steps_per_epoch=2)
+	lenet_model.fit(train_images, train_labels, epochs=10, batch_size=100, validation_data=(test_images, test_labels))
 	# Test the model on testing set
-	_, accuracy = lenet_model.evaluate(x=test_images, y=test_labels, batch_size=300)
-	print('Accuracy:', accuracy)
+	lenet_model.evaluate(x=test_images, y=test_labels)
 
 
 if __name__ == "__main__":

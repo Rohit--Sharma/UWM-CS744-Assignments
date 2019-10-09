@@ -3,7 +3,7 @@ export TF_RUN_DIR="~/tf"
 
 function terminate_cluster() {
     echo "Terminating the servers"
-    CMD="ps aux | grep -v 'grep' | grep -v 'bash' | grep -v 'ssh' | grep 'python3 -u logistic_regression' | awk -F' ' '{print \$2}' | xargs kill -9"
+    CMD="ps aux | grep -v 'grep' | grep -v 'bash' | grep -v 'ssh' | grep 'python3 -u lenet' | awk -F' ' '{print \$2}' | xargs kill -9"
     for i in `seq 0 2`; do
         ssh node$i "$CMD"
     done
@@ -33,9 +33,9 @@ function start_cluster() {
         if [ "$2" = "single" ]; then
             nohup ssh node0 "cd ~/tf ; python3 -u $1 --deploy_mode=single" > serverlog-0.out 2>&1&
         elif [ "$2" = "cluster" ]; then
-            nohup ssh node0 "cd ~/tf ; python3 -u $1 --deploy_mode=cluster  --job_name=ps" > serverlog-ps-0.out 2>&1&
-            nohup ssh node0 "cd ~/tf ; python3 -u $1 --deploy_mode=cluster  --task_index=0" > serverlog-0.out 2>&1&
-            nohup ssh node1 "cd ~/tf ; python3 -u $1 --deploy_mode=cluster  --task_index=1" > serverlog-1.out 2>&1&
+            nohup ssh node0 "cd ~/tf ; python3 -u $1 0" > serverlog-$1-0.out 2>&1&
+            nohup ssh node1 "cd ~/tf ; python3 -u $1 1" > serverlog-$1-1.out 2>&1&
+            nohup ssh node2 "cd ~/tf ; python3 -u $1 2" > serverlog-$1-2.out 2>&1&
         else
             nohup ssh node0 "cd ~/tf ; python3 -u $1 --deploy_mode=cluster2  --job_name=ps" > serverlog-ps-0.out 2>&1&
             nohup ssh node0 "cd ~/tf ; python3 -u $1 --deploy_mode=cluster2  --task_index=0" > serverlog-0.out 2>&1&
