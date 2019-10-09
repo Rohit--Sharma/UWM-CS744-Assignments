@@ -62,7 +62,7 @@ def main():
         is_chief = (FLAGS.task_index == 0)
         checkppint_steps = 50
         number_of_replicas = 2
-        print("Total number of replicas : %d", number_of_replicas) 
+        print("Total number of replicas : %d" % number_of_replicas) 
         worker_device = "/job:%s/task:%d/cpu:0" % (FLAGS.job_name,FLAGS.task_index)
         
         with tf.device(tf.train.replica_device_setter(
@@ -85,7 +85,8 @@ def main():
             correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-            global_step = tf.contrib.framework.get_or_create_global_step()
+            #global_step = tf.contrib.framework.get_or_create_global_step()
+            global_step = tf.Variable(0, name="global_step", trainable=False)
 
             # Gradient Descent
             optimizer = tf.train.GradientDescentOptimizer(learning_rate)
@@ -105,9 +106,9 @@ def main():
                 is_chief=is_chief,
                 config=config,
                 hooks=hooks,
-                stop_grace_period_secs=10,
-                checkpoint_dir="/tmp/train_logs",
-                save_checkpoint_steps=checkppint_steps)
+                stop_grace_period_secs=10) 
+                #checkpoint_dir="/tmp/train_logs",
+                #save_checkpoint_steps=checkppint_steps)
             
             # putting each tensorboard log into its own dir
             now = time.time()
