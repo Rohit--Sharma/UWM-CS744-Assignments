@@ -58,7 +58,7 @@ def main():
         learning_rate = 0.01
         display_step = 1
         batch_size = 75
-        num_iter = 100000
+        num_iter = 10000
         is_chief = (FLAGS.task_index == 0)
         with tf.device(tf.train.replica_device_setter(
             worker_device="/job:worker/task:%d" % FLAGS.task_index,
@@ -89,6 +89,7 @@ def main():
             
             training_op = optimizer.minimize(loss, global_step=global_step)
             hooks = [optimizer.make_session_run_hook(is_chief, num_tokens=0),  tf.train.StopAtStepHook(last_step=num_iter)]
+           
             # tf.train.StopAtStepHook(last_step=num_iter), 
             # adding loss summary
             tf.summary.scalar("loss", loss)
@@ -112,9 +113,11 @@ def main():
                 _, loss_val, summ = mon_sess.run((training_op, loss, merged), feed_dict={x: data_x, y: data_y})
 
                 writer.add_summary(summ, iter)
-                print("Epoch:", '%04d' % (iter + 1), "loss=", "{:.9f}".format(loss_val))
+                if (iter + 1) % display_step == 0:
+                    print("Epoch:", '%04d' % (iter + 1), "loss=", "{:.9f}".format(loss_val))
                 iter += 1
             print('Done',FLAGS.task_index)
+            print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}))
 
 if __name__ == "__main__":
     time_begin = time.time()
