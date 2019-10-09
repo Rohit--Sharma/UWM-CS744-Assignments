@@ -4,4 +4,15 @@
 # it contains definition for start_cluster and terminate_cluster
 source cluster_utils.sh
 
-start_cluster lenet.py cluster
+while true
+do
+    echo "Please select a mode: Single: single, Distributed-synchronous (2 nodes): cluster, Distributed-synchronous (3 nodes): cluster2"
+    read option
+    if [ "$option" = "single" ] || [ "$option" = "cluster" ] || [ "$option" = "cluster2" ]; then
+        break
+    else
+        echo "Please enter a valid mode."
+    fi
+done
+
+start_cluster lenet.py "$option"

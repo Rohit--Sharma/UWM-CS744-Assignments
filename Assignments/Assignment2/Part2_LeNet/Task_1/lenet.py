@@ -77,16 +77,26 @@ def main():
 	# Load and pre-process the mnist data
 	(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
+	print(len(test_images))
+	val_images = test_images[:9000]
+	val_labels = test_labels[:9000]
+	print(len(val_images))
+
+	test_images = test_images[9000:9900]
+	test_labels = test_labels[9000:9900]
+
 	# Convert to float and normalise it.
 	train_images = train_images.astype(np.float32) / 255
 	test_images = test_images.astype(np.float32) / 255
 
 	# Reshape the training and test set
 	train_images = train_images.reshape(train_images.shape[0], 28, 28, 1)
+	val_images = val_images.reshape(val_images.shape[0], 28, 28, 1)
 	test_images = test_images.reshape(test_images.shape[0], 28, 28, 1)
 
 	# One-hot encoding of the labels
 	train_labels = to_categorical(train_labels, 10)
+	val_labels = to_categorical(val_labels, 10)
 	test_labels = to_categorical(test_labels, 10)
 
 	# Build and compile the LeNet model with MultiWorkerMirroredStrategy 
@@ -96,9 +106,9 @@ def main():
 		lenet_model = build_and_compile_lenet_model()
 
 	# Train the model on training set
-	lenet_model.fit(train_images, train_labels, epochs=10, batch_size=300, validation_data=(test_images, test_labels), steps_per_epoch=2)
+	lenet_model.fit(train_images, train_labels, epochs=3, batch_size=300, validation_data=(val_images, val_labels), steps_per_epoch=2)
 	# Test the model on testing set
-	_, accuracy = lenet_model.evaluate(x=test_images, y=test_labels, batch_size=300)
+	_, accuracy = lenet_model.evaluate(x=test_images, y=test_labels, batch_size=30)
 	print('Accuracy:', accuracy)
 
 
