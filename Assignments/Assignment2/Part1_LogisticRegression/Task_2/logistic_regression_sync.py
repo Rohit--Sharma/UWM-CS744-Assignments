@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
@@ -60,8 +61,13 @@ def main():
         batch_size = 75
         num_iter = 10000
         is_chief = (FLAGS.task_index == 0)
+        checkppint_steps = 50
+        number_of_replicas = 2
+        print("Total number of replicas : %d" % number_of_replicas) 
+        worker_device = "/job:%s/task:%d/cpu:0" % (FLAGS.job_name,FLAGS.task_index)
+        
         with tf.device(tf.train.replica_device_setter(
-            worker_device="/job:worker/task:%d" % FLAGS.task_index,
+            worker_device=worker_device,
             cluster=clusterinfo)):
 
             # TF graph input
@@ -80,17 +86,17 @@ def main():
             correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-            global_step = tf.contrib.framework.get_or_create_global_step()
+            #global_step = tf.contrib.framework.get_or_create_global_step()
+            global_step = tf.Variable(0, name="global_step", trainable=False)
 
             # Gradient Descent
             optimizer = tf.train.GradientDescentOptimizer(learning_rate)
-            optimizer = tf.train.SyncReplicasOptimizer(optimizer, replicas_to_aggregate=2,
-                                   total_num_replicas=2)
+            optimizer = tf.train.SyncReplicasOptimizer(optimizer, replicas_to_aggregate=number_of_replicas,
+                                   total_num_replicas=number_of_replicas)
             
             training_op = optimizer.minimize(loss, global_step=global_step)
-            hooks = [optimizer.make_session_run_hook(is_chief, num_tokens=0),  tf.train.StopAtStepHook(last_step=num_iter)]
+            hooks = [optimizer.make_session_run_hook(is_chief),  tf.train.StopAtStepHook(last_step=num_iter)]
            
-            # tf.train.StopAtStepHook(last_step=num_iter), 
             # adding loss summary
             tf.summary.scalar("loss", loss)
             merged = tf.summary.merge_all()
@@ -100,31 +106,34 @@ def main():
                 is_chief=is_chief,
                 config=config,
                 hooks=hooks,
-                stop_grace_period_secs=10,
-                checkpoint_dir="/tmp/train_logs")
-            iter = 0
+                stop_grace_period_secs=10) 
+                #checkpoint_dir="/tmp/train_logs",
+                #save_checkpoint_steps=checkppint_steps)
             
             # putting each tensorboard log into its own dir
-            now = time.time()
+            now = datetime.now()
             writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now))
-
+            local_step = 0
             while not mon_sess.should_stop():
+                # Get the next batch
                 data_x, data_y = mnist.train.next_batch(batch_size)
-                _, loss_val, summ = mon_sess.run((training_op, loss, merged), feed_dict={x: data_x, y: data_y})
+                
+                _, loss_val, summ, gs = mon_sess.run((training_op, loss, merged, global_step), feed_dict={x: data_x, y: data_y})
+                local_step += 1
+                
+                now = datetime.now().strftime('%M:%S.%f')[:-4]
+                print("%s: Worker %d: training step %d done (global step: %d) : Loss : %f" %(now, FLAGS.task_index, local_step, gs, loss_val))
+                writer.add_summary(summ, local_step)
 
-                writer.add_summary(summ, iter)
-                if (iter + 1) % display_step == 0:
-                    print("Epoch:", '%04d' % (iter + 1), "loss=", "{:.9f}".format(loss_val))
-                iter += 1
             print('Done',FLAGS.task_index)
             # Test model
             with tf.Session(server.target) as s:
                 print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}, session=s))
 
 if __name__ == "__main__":
-    time_begin = time.time()
+    time_begin = datetime.now()
     main()
-    time_end = time.time()
+    time_end = datetime.now()
 
     training_time = time_end - time_begin
     print('Total time taken:', training_time, 's')
