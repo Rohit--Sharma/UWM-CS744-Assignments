@@ -10,7 +10,7 @@ from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.layers import Dense, Conv2D, AveragePooling2D, Flatten
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
-
+from tensorflow.keras.callbacks import TensorBoard
 # define the command line flags that can be sent
 tf.app.flags.DEFINE_integer("num_workers", 1, "Number of workers.")
 tf.app.flags.DEFINE_integer("task_id", 0, "Task ID of current worker")
@@ -112,6 +112,10 @@ def main():
 	train_datasets_unbatched = datasets['train'].map(scale).cache().shuffle(buffer_size).repeat()
 	train_datasets = train_datasets_unbatched.batch(batch_size)
 
+	# Save Loss to tensorboard logs
+	logdir = "./tmp/lnet_logs/scalars/{}".format(datetime.now())
+	tensorboard_callback = TensorBoard(log_dir=logdir)
+
 	# Build and compile the LeNet model with MultiWorkerMirroredStrategy 
 	# to run it in distributed synchronized way
 	multiworker_strategy = tf.distribute.experimental.MultiWorkerMirroredStrategy()
@@ -120,7 +124,7 @@ def main():
 
 	# Train the model on training set
 	steps_per_epoch = int(np.ceil(60000 / float(batch_size)))
-	lenet_model.fit(x=train_datasets, epochs=num_epochs, steps_per_epoch=steps_per_epoch)
+	lenet_model.fit(x=train_datasets, epochs=num_epochs, steps_per_epoch=steps_per_epoch, callbacks=[tensorboard_callback])
 
 	test_datasets = datasets['test'].map(scale).cache().repeat().batch(batch_size)
 	options = tf.data.Options()
