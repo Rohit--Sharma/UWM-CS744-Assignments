@@ -85,30 +85,30 @@ def build_and_compile_lenet_model():
 
 
 def main():
+	batch_size = 128 * num_workers
+	num_epochs = 20
+	buffer_size = 10000
+	
 	# Load and pre-process the mnist data
 	(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+	steps_per_epoch = int(np.ceil(len(train_images) / float(batch_size)))
 
-	print(len(test_images))
-	val_images = test_images[:9000]
-	val_labels = test_labels[:9000]
-	print(len(val_images))
-
-	test_images = test_images[9000:9900]
-	test_labels = test_labels[9000:9900]
-
-	# Convert to float and normalise it.
+	# Convert to float and normalise it, followed by reshape it
 	train_images = train_images.astype(np.float32) / 255
+	train_images = np.expand_dims(train_images, -1)
 	test_images = test_images.astype(np.float32) / 255
-
-	# Reshape the training and test set
-	train_images = train_images.reshape(train_images.shape[0], 28, 28, 1)
-	val_images = val_images.reshape(val_images.shape[0], 28, 28, 1)
-	test_images = test_images.reshape(test_images.shape[0], 28, 28, 1)
+	test_images = np.expand_dims(test_images, -1)
 
 	# One-hot encoding of the labels
-	train_labels = to_categorical(train_labels, 10)
-	val_labels = to_categorical(val_labels, 10)
-	test_labels = to_categorical(test_labels, 10)
+	train_labels = tf.one_hot(train_labels, 10)
+	test_labels = tf.one_hot(test_labels, 10)
+
+	# Create the dataset and its associated one-shot iterator.
+	dataset = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
+	dataset = dataset.repeat()
+	dataset = dataset.shuffle(buffer_size)
+	dataset = dataset.batch(128)
+	train_iterator = dataset.make_one_shot_iterator()
 
 	# Build and compile the LeNet model with MultiWorkerMirroredStrategy 
 	# to run it in distributed synchronized way
@@ -117,7 +117,7 @@ def main():
 		lenet_model = build_and_compile_lenet_model()
 
 	# Train the model on training set
-	lenet_model.fit(train_images, train_labels, epochs=3, batch_size=300, validation_data=(val_images, val_labels), steps_per_epoch=2)
+	lenet_model.fit(train_iterator, epochs=num_epochs, batch_size=batch_size, steps_per_epoch=steps_per_epoch)
 	# Test the model on testing set
 	_, accuracy = lenet_model.evaluate(x=test_images, y=test_labels, batch_size=30)
 	print('Accuracy:', accuracy)
