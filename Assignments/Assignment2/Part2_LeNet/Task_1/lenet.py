@@ -88,7 +88,7 @@ def build_and_compile_lenet_model():
 
 def main():
 	batch_size = 128 * num_workers
-	num_epochs = 10
+	num_epochs = 20
 	buffer_size = 10000
 	
 	# Load and pre-process the mnist data
@@ -96,13 +96,14 @@ def main():
 	def scale(image, label):
 		image = tf.cast(image, tf.float32)
 		image /= 255
+		label = tf.one_hot(label, 10)
 		return image, label
 
 	datasets, _ = tfds.load(name='mnist',
 							with_info=True,
 							as_supervised=True)
 
-	train_datasets_unbatched = datasets['train'].map(scale).cache().repeat().shuffle(buffer_size)
+	train_datasets_unbatched = datasets['train'].map(scale).cache().shuffle(buffer_size).repeat()
 	train_datasets = train_datasets_unbatched.batch(batch_size)
 
 	# Build and compile the LeNet model with MultiWorkerMirroredStrategy 
