@@ -6,10 +6,9 @@ source cluster_utils.sh
 
 if [ "$#" -ne 3 ]; then
     echo "Illegal arguments passed. Please enter the input in the below format:"
-    echo "run.sh <batch_size> <task_id> <cluster_mode>"
+    echo "run.sh <batch_size> <num_epochs> <cluster_mode>"
     echo "The mode is one of single, cluster or cluster2"
     exit 2
 fi
 
-# start_cluster lenet.py <batch_size> <task_id> <cluster_mode>
 start_cluster lenet.py $1 $2 $3
