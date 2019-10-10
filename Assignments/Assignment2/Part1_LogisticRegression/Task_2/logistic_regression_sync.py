@@ -122,11 +122,7 @@ def main():
                 local_step += 1
                 
                 now = datetime.now().strftime('%M:%S.%f')[:-4]
-                print("%s: Worker %d: training step %d done (global step: %d) : Loss : %f" %(now, FLAGS.task_index, local_step, gs, loss_val)) 
-                if FLAGS.task_index==2:
-                    time.sleep(3)
-                else:
-                    time.sleep(1)
+                print("%s: Worker %d: training step %d done (global step: %d) : Loss : %f" %(now, FLAGS.task_index, local_step, gs, loss_val))
                 writer.add_summary(summ, local_step)
 
             print('Done',FLAGS.task_index)
