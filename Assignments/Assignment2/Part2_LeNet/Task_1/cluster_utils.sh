@@ -31,15 +31,15 @@ function start_cluster() {
         echo "Starting tensorflow workers on all hosts based on the spec in $1"
         echo "The worker output is logged to serverlog-i.out, where i = 0, ..., 3 are the VM numbers."
         # python3 lenet.py <num_workers> <task_idx>
-        if [ "$2" = "single" ]; then
-            nohup ssh node0 "cd ~/tf ; python3 -u $1 1 0" > serverlog-0.out 2>&1&
-        elif [ "$2" = "cluster" ]; then
-            nohup ssh node0 "cd ~/tf ; python3 -u $1 2 0" > serverlog-0.out 2>&1&
-            nohup ssh node1 "cd ~/tf ; python3 -u $1 2 1" > serverlog-1.out 2>&1&
+        if [ "$4" = "single" ]; then
+            nohup ssh node0 "cd ~/tf ; python3 -u $1 --num_workers 1 --task_id 0 --batch_size $2 --num_epochs $3" > serverlog-0.out 2>&1&
+        elif [ "$4" = "cluster" ]; then
+            nohup ssh node0 "cd ~/tf ; python3 -u $1 --num_workers 2 --task_id 0 --batch_size $2 --num_epochs $3" > serverlog-0.out 2>&1&
+            nohup ssh node1 "cd ~/tf ; python3 -u $1 --num_workers 2 --task_id 1 --batch_size $2 --num_epochs $3" > serverlog-1.out 2>&1&
         else
-            nohup ssh node0 "cd ~/tf ; python3 -u $1 3 0" > serverlog-0.out 2>&1&
-            nohup ssh node1 "cd ~/tf ; python3 -u $1 3 1" > serverlog-1.out 2>&1&
-            nohup ssh node2 "cd ~/tf ; python3 -u $1 3 2" > serverlog-2.out 2>&1&
+            nohup ssh node0 "cd ~/tf ; python3 -u $1 --num_workers 3 --task_id 0 --batch_size $2 --num_epochs $3" > serverlog-0.out 2>&1&
+            nohup ssh node1 "cd ~/tf ; python3 -u $1 --num_workers 3 --task_id 1 --batch_size $2 --num_epochs $3" > serverlog-1.out 2>&1&
+            nohup ssh node2 "cd ~/tf ; python3 -u $1 --num_workers 3 --task_id 2 --batch_size $2 --num_epochs $3" > serverlog-2.out 2>&1&
         fi
     fi
 }

@@ -11,10 +11,16 @@ from tensorflow.keras.layers import Dense, Conv2D, AveragePooling2D, Flatten
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 
+# define the command line flags that can be sent
+tf.app.flags.DEFINE_integer("num_workers", 1, "Number of workers.")
+tf.app.flags.DEFINE_integer("task_id", 0, "Task ID of current worker")
+tf.app.flags.DEFINE_integer("batch_size", 64, "batch size that will be used = this value * num_workers")
+tf.app.flags.DEFINE_integer("num_epochs", 20, "Number of gradient descent epochs")
+FLAGS = tf.app.flags.FLAGS
 
 # Configuration of the cluster
-num_workers = int(sys.argv[1])
-curr_task_idx = int(sys.argv[2])
+num_workers = FLAGS.num_workers
+curr_task_idx = FLAGS.task_id
 
 cluster_conf = {
 	'cluster': {
@@ -87,8 +93,8 @@ def build_and_compile_lenet_model():
 
 
 def main():
-	batch_size = 128 * num_workers
-	num_epochs = 20
+	batch_size = FLAGS.batch_size * num_workers
+	num_epochs = FLAGS.num_epochs
 	buffer_size = 10000
 	
 	# Load and pre-process the mnist data
