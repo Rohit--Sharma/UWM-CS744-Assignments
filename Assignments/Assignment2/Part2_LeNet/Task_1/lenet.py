@@ -3,6 +3,7 @@ import sys
 import json
 import numpy as np
 import tensorflow as tf
+from datetime import datetime
 import tensorflow_datasets as tfds
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD
@@ -124,4 +125,9 @@ def main():
 
 
 if __name__ == "__main__":
+	time_begin = datetime.now()
 	main()
+	time_end = datetime.now()
+
+	training_time = time_end - time_begin
+	print('Total time taken:', training_time, 's')
