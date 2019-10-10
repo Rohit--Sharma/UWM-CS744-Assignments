@@ -1,4 +1,4 @@
-import time
+from datetime import datetime
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -111,7 +111,7 @@ def main():
                 #save_checkpoint_steps=checkppint_steps)
             
             # putting each tensorboard log into its own dir
-            now = time.time()
+            now = datetime.now()
             writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now))
             local_step = 0
             while not mon_sess.should_stop():
@@ -121,18 +121,18 @@ def main():
                 _, loss_val, summ, gs = mon_sess.run((training_op, loss, merged, global_step), feed_dict={x: data_x, y: data_y})
                 local_step += 1
 
-                now = time.time()
-                print("%f: Worker %d: training step %d done (global step: %d) : Loss : %f" %(now, FLAGS.task_index, local_step, gs, loss_val)) 
+                now = datetime.now().strftime('%M:%S.%f')[:-4]
+                print("%s: Worker %d: training step %d done (global step: %d) : Loss : %f" %(now, FLAGS.task_index, local_step, gs, loss_val)) 
                 writer.add_summary(summ, local_step)
 
             print('Done',FLAGS.task_index)
             # Test model
-            # print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}, session=mon_sess))
+            print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}, session=mon_sess))
 
 if __name__ == "__main__":
-    time_begin = time.time()
+    time_begin = datetime.now()
     main()
-    time_end = time.time()
+    time_end = datetime.now()
 
     training_time = time_end - time_begin
     print('Total time taken:', training_time, 's')
