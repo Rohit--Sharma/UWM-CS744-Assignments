@@ -114,7 +114,10 @@ def main():
                 # Get the next batch
                 data_x, data_y = mnist.train.next_batch(batch_size)
                 
-                _, loss_val, summ, gs = mon_sess.run((training_op, loss, merged, global_step), feed_dict={x: data_x, y: data_y})
+                _, summ, gs = mon_sess.run((training_op, merged, global_step), feed_dict={x: data_x, y: data_y})
+                # Compute loss on validation dataset (due to time constraint, using test instead :p)
+                loss_val = mon_sess.run(loss, feed_dict={x: mnist.test.images, y: mnist.test.labels})
+
                 local_step += 1
                 
                 now = datetime.now().strftime('%M:%S.%f')[:-4]
