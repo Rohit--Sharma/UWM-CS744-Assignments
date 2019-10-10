@@ -44,6 +44,12 @@ clusterSpec = {
     "cluster2": clusterSpec_cluster2
 }
 
+num_workers = {
+    "single": 1,
+    "cluster": 2,
+    "cluster2": 3
+}
+
 def main():
     clusterinfo = clusterSpec[FLAGS.deploy_mode]
     server = tf.train.Server(clusterinfo, job_name=FLAGS.job_name, task_index=FLAGS.task_index)
@@ -62,8 +68,8 @@ def main():
         num_iter = 10000
         is_chief = (FLAGS.task_index == 0)
         checkppint_steps = 50
-        number_of_replicas = 2 # TODO: check
-        print("Total number of replicas : %d" % number_of_replicas) 
+        number_of_replicas = num_workers[FLAGS.deploy_mode]
+        
         worker_device = "/job:%s/task:%d/cpu:0" % (FLAGS.job_name,FLAGS.task_index)
         
         with tf.device(tf.train.replica_device_setter(
