@@ -3,8 +3,9 @@ import sys
 import json
 import numpy as np
 import tensorflow as tf
-
+import tensorflow_datasets as tfds
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.layers import Dense, Conv2D, AveragePooling2D, Flatten
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
@@ -79,36 +80,29 @@ def build_and_compile_lenet_model():
 		activation="softmax"
 	))
 
-	model.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+	model.compile(loss='categorical_crossentropy', optimizer=SGD(learning_rate=0.01), metrics=['accuracy'])
 
 	return model
 
 
 def main():
 	batch_size = 128 * num_workers
-	num_epochs = 20
+	num_epochs = 10
 	buffer_size = 10000
 	
 	# Load and pre-process the mnist data
-	(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
-	steps_per_epoch = int(np.ceil(len(train_images) / float(batch_size)))
+	# Scaling MNIST data from (0, 255] to (0., 1.]
+	def scale(image, label):
+		image = tf.cast(image, tf.float32)
+		image /= 255
+		return image, label
 
-	# Convert to float and normalise it, followed by reshape it
-	train_images = train_images.astype(np.float32) / 255
-	train_images = np.expand_dims(train_images, -1)
-	test_images = test_images.astype(np.float32) / 255
-	test_images = np.expand_dims(test_images, -1)
+	datasets, _ = tfds.load(name='mnist',
+							with_info=True,
+							as_supervised=True)
 
-	# One-hot encoding of the labels
-	train_labels = tf.one_hot(train_labels, 10)
-	test_labels = tf.one_hot(test_labels, 10)
-
-	# Create the dataset and its associated one-shot iterator.
-	dataset = tf.data.Dataset.from_tensor_slices((train_images, train_labels))
-	dataset = dataset.repeat()
-	dataset = dataset.shuffle(buffer_size)
-	dataset = dataset.batch(128)
-	train_iterator = dataset.make_one_shot_iterator()
+	train_datasets_unbatched = datasets['train'].map(scale).cache().repeat().shuffle(buffer_size)
+	train_datasets = train_datasets_unbatched.batch(batch_size)
 
 	# Build and compile the LeNet model with MultiWorkerMirroredStrategy 
 	# to run it in distributed synchronized way
@@ -117,9 +111,15 @@ def main():
 		lenet_model = build_and_compile_lenet_model()
 
 	# Train the model on training set
-	lenet_model.fit(train_iterator, epochs=num_epochs, batch_size=batch_size, steps_per_epoch=steps_per_epoch)
+	steps_per_epoch = int(np.ceil(60000 / float(batch_size)))
+	lenet_model.fit(x=train_datasets, epochs=num_epochs, steps_per_epoch=steps_per_epoch)
+
+	test_datasets = datasets['test'].map(scale).cache().repeat().batch(batch_size)
+	options = tf.data.Options()
+	options.experimental_distribute.auto_shard = False
+	test_datasets = test_datasets.with_options(options)
 	# Test the model on testing set
-	_, accuracy = lenet_model.evaluate(x=test_images, y=test_labels, batch_size=30)
+	_, accuracy = lenet_model.evaluate(x=test_datasets, steps=25)
 	print('Accuracy:', accuracy)
 
 
