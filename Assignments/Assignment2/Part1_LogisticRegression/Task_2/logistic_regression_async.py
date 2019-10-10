@@ -122,7 +122,7 @@ def main():
                 
                 now = datetime.now().strftime('%M:%S.%f')[:-4]
                 print("%s: Worker %d: training step %d done (global step: %d) : Loss : %f" %(now, FLAGS.task_index, local_step, gs, loss_val))
-                writer.add_summary(summ, local_step)
+                writer.add_summary(summ, gs)
 
             print('Done',FLAGS.task_index)
             # Test model
