@@ -62,8 +62,6 @@ def main():
         num_iter = 10000
         is_chief = (FLAGS.task_index == 0)
         checkppint_steps = 50
-        number_of_replicas = 2
-        print("Total number of replicas : %d" % number_of_replicas) 
         worker_device = "/job:%s/task:%d/cpu:0" % (FLAGS.job_name,FLAGS.task_index)
         
         with tf.device(tf.train.replica_device_setter(
