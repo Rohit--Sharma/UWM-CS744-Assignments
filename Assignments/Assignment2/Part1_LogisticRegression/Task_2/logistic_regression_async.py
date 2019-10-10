@@ -129,7 +129,8 @@ def main():
 
             print('Done',FLAGS.task_index)
             # Test model
-            print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}, session=mon_sess))
+            with tf.Session(server.target) as s:
+                print("Accuracy:", accuracy.eval({x: mnist.test.images, y: mnist.test.labels}, session=s))
 
 if __name__ == "__main__":
     time_begin = datetime.now()
