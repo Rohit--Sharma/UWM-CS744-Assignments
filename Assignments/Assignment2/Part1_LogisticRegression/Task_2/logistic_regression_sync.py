@@ -63,11 +63,10 @@ def main():
         mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
         # model hyperparameters
         learning_rate = 0.01
-        display_step = 1
         batch_size = 75
         num_iter = 10000
         is_chief = (FLAGS.task_index == 0)
-        checkppint_steps = 50
+        # checkpoint_steps = 50
         number_of_replicas = num_workers[FLAGS.deploy_mode]
         
         worker_device = "/job:%s/task:%d/cpu:0" % (FLAGS.job_name,FLAGS.task_index)
@@ -97,10 +96,13 @@ def main():
 
             # Gradient Descent
             optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+
+            # Synchronize, aggregate gradients and pass them to the optimizer
             optimizer = tf.train.SyncReplicasOptimizer(optimizer, replicas_to_aggregate=number_of_replicas,
                                    total_num_replicas=number_of_replicas)
-            
             training_op = optimizer.minimize(loss, global_step=global_step)
+
+            # Stop training after num_iter have been executed. Create the hook which handles initialization and queues
             hooks = [optimizer.make_session_run_hook(is_chief),  tf.train.StopAtStepHook(last_step=num_iter)]
            
             # adding loss summary
@@ -119,6 +121,7 @@ def main():
             # putting each tensorboard log into its own dir
             now = datetime.now()
             writer = tf.summary.FileWriter("./tmp/mnist_logs/{}".format(now))
+
             local_step = 0
             while not mon_sess.should_stop():
                 # Get the next batch
@@ -127,9 +130,11 @@ def main():
                 _, summ, gs = mon_sess.run((training_op, merged, global_step), feed_dict={x: data_x, y: data_y})
                 # Compute loss on validation dataset (due to time constraint, using test instead :p)
                 loss_val = mon_sess.run(loss, feed_dict={x: mnist.test.images, y: mnist.test.labels})
+                
                 local_step += 1
                 
                 now = datetime.now().strftime('%M:%S.%f')[:-4]
+                # Prints the loss computed locally.
                 print("%s: Worker %d: training step %d done (global step: %d) : Loss : %f" %(now, FLAGS.task_index, local_step, gs, loss_val))
                 writer.add_summary(summ, gs)
 
