@@ -11,6 +11,8 @@ from tensorflow.keras.layers import Dense, Conv2D, AveragePooling2D, Flatten
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import TensorBoard
+
+
 # define the command line flags that can be sent
 tf.app.flags.DEFINE_integer("num_workers", 1, "Number of workers.")
 tf.app.flags.DEFINE_integer("task_id", 0, "Task ID of current worker")
@@ -18,10 +20,10 @@ tf.app.flags.DEFINE_integer("batch_size", 64, "batch size that will be used = th
 tf.app.flags.DEFINE_integer("num_epochs", 20, "Number of gradient descent epochs")
 FLAGS = tf.app.flags.FLAGS
 
+
 # Configuration of the cluster
 num_workers = FLAGS.num_workers
 curr_task_idx = FLAGS.task_id
-
 cluster_conf = {
 	'cluster': {
 		'worker': []
@@ -31,10 +33,8 @@ cluster_conf = {
 		'index': curr_task_idx
 	}
 }
-
 for worker_idx in range(num_workers):
 	cluster_conf['cluster']['worker'].append('node{0}:2222'.format(worker_idx))
-
 os.environ["TF_CONFIG"] = json.dumps(cluster_conf)
 
 
@@ -105,10 +105,12 @@ def main():
 		label = tf.one_hot(label, 10)
 		return image, label
 
+	# Load the mnist dataset
 	datasets, _ = tfds.load(name='mnist',
 							with_info=True,
 							as_supervised=True)
 
+	# Prepare the training data
 	train_datasets_unbatched = datasets['train'].map(scale).cache().shuffle(buffer_size).repeat()
 	train_datasets = train_datasets_unbatched.batch(batch_size)
 
@@ -126,10 +128,12 @@ def main():
 	steps_per_epoch = int(np.ceil(60000 / float(batch_size)))
 	lenet_model.fit(x=train_datasets, epochs=num_epochs, steps_per_epoch=steps_per_epoch, callbacks=[tensorboard_callback])
 
+	# Prepare the test data
 	test_datasets = datasets['test'].map(scale).cache().repeat().batch(batch_size)
 	options = tf.data.Options()
 	options.experimental_distribute.auto_shard = False
 	test_datasets = test_datasets.with_options(options)
+	
 	# Test the model on testing set
 	_, accuracy = lenet_model.evaluate(x=test_datasets, steps=25)
 	print('Accuracy:', accuracy)
